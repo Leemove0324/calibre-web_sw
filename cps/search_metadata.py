@@ -24,13 +24,15 @@ import os
 import sys
 from urllib.parse import urlsplit
 
-from flask import Blueprint, request, url_for, make_response, jsonify
+from flask import Blueprint, request, url_for, make_response, jsonify, abort
 from .cw_login import current_user
 from flask_babel import get_locale
 from sqlalchemy.exc import InvalidRequestError, OperationalError
 from sqlalchemy.orm.attributes import flag_modified
 
 from cps.services.Metadata import Metadata
+from cps.services.worker import WorkerThread
+from cps.tasks.metadata_fetch import TaskFetchMetadata
 from . import constants, logger, ub, web_server
 from .usermanagement import user_login_required
 
@@ -169,3 +171,40 @@ def metadata_search():
             for future in concurrent.futures.as_completed(meta):
                 data.extend(_serialize_metadata_records(future.result()))
     return make_response(jsonify(data))
+
+
+# F6: fetch metadata for many books at once in a background task
+BULK_MAX_BOOKS = 200
+
+
+@meta.route("/metadata/bulk", methods=["POST"])
+@user_login_required
+def metadata_bulk_fetch():
+    if not (current_user.role_edit() or current_user.role_admin()):
+        abort(403)
+    data = request.get_json(silent=True) or {}
+    try:
+        book_ids = [int(book_id) for book_id in data.get("book_ids", [])]
+    except (TypeError, ValueError):
+        return make_response(jsonify(error="book_ids must be a list of numbers"), 400)
+    if not book_ids:
+        return make_response(jsonify(error="No books selected"), 400)
+    if len(book_ids) > BULK_MAX_BOOKS:
+        return make_response(jsonify(error="Select at most {} books".format(BULK_MAX_BOOKS)), 400)
+    task = TaskFetchMetadata(book_ids, current_user.id)
+    WorkerThread.add(current_user.name, task)
+    return make_response(jsonify(task_id=str(task.id), books=len(task.book_ids)), 202)
+
+
+@meta.route("/metadata/bulk/<task_id>", methods=["GET"])
+@user_login_required
+def metadata_bulk_status(task_id):
+    for queued in WorkerThread.get_instance().tasks:
+        task = queued.task
+        if str(task.id) != task_id or not isinstance(task, TaskFetchMetadata):
+            continue
+        if queued.user != current_user.name and not current_user.role_admin():
+            abort(403)
+        return make_response(jsonify(task_id=str(task.id), status=task.stat, progress=task.progress,
+                                     counts=task.counts(), results=task.results))
+    abort(404)

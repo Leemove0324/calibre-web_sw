@@ -99,6 +99,9 @@ $(function() {
 
                 $("#edit_selected_books").removeClass("disabled");
                 $("#edit_selected_books").attr("aria-disabled", false);
+
+                $("#fetch_selected_metadata").removeClass("disabled");
+                $("#fetch_selected_metadata").attr("aria-disabled", false);
             } else {
                 $("#delete_selected_books").addClass("disabled");
                 $("#delete_selected_books").attr("aria-disabled", true);
@@ -117,6 +120,9 @@ $(function() {
 
                 $("#edit_selected_books").addClass("disabled");
                 $("#edit_selected_books").attr("aria-disabled", true);
+
+                $("#fetch_selected_metadata").addClass("disabled");
+                $("#fetch_selected_metadata").attr("aria-disabled", true);
             }
             if (selections.length < 1) {
                 // $("#book_delete_selection").addClass("disabled");
@@ -199,6 +205,41 @@ $(function() {
         } else {
             $('#edit_selected_modal').modal("show");
         }
+    });
+
+    // F6: start one background task that fetches metadata for every selected book
+    $("#fetch_selected_metadata").click(function(event) {
+        if ($(this).hasClass("disabled")) {
+            event.stopPropagation();
+            return;
+        }
+        var button = $(this);
+        button.addClass("disabled").attr("aria-disabled", true);
+        $.ajax({
+            method: "post",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            url: getPath() + "/metadata/bulk",
+            data: JSON.stringify({"book_ids": selections}),
+            success: function success(data) {
+                $("#flash_success").remove();
+                $("#flash_danger").remove();
+                $(".navbar").after('<div class="row-fluid text-center">' +
+                    '<div id="flash_success" class="alert alert-success">' +
+                    'Fetching metadata for ' + data.books + ' books. ' +
+                    '<a href="' + getPath() + '/tasks">See progress</a></div></div>');
+                $("#books-table").bootstrapTable("uncheckAll");
+            },
+            error: function error(xhr) {
+                var msg = (xhr.responseJSON && xhr.responseJSON.error) ? xhr.responseJSON.error : "Request failed";
+                $("#flash_success").remove();
+                $("#flash_danger").remove();
+                $(".navbar").after('<div class="row-fluid text-center">' +
+                    '<div id="flash_danger" class="alert alert-danger"></div></div>');
+                $("#flash_danger").text(msg);
+                button.removeClass("disabled").attr("aria-disabled", false);
+            }
+        });
     });
 
     $("#edit_selected_confirm").click(function(event) {
