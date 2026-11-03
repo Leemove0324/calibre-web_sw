@@ -35,7 +35,7 @@ from difflib import SequenceMatcher
 from babel import Locale
 from flask_babel import lazy_gettext as N_
 
-from cps import app, db, logger
+from cps import app, config, db, logger
 from cps.services.worker import CalibreTask, STAT_CANCELLED, STAT_ENDED
 
 log = logger.create()
@@ -279,6 +279,11 @@ class TaskFetchMetadata(CalibreTask):
     def name(self):
         return N_("Fetch Metadata")
 
+    def __str__(self):
+        # plain str: the base class returns self.name, a lazy translation string, which
+        # breaks WorkerThread.add's log line ("__str__ returned non-string")
+        return "Fetch metadata for {} books".format(len(self.book_ids))
+
     @property
     def is_cancellable(self):
         return True
@@ -360,6 +365,10 @@ class TaskFetchMetadata(CalibreTask):
             entry["result"] = RESULT_FAILED
             entry["error"] = "Book not found"
             return entry
+        # books has an UPDATE trigger that calls title_sort(); like editbooks.do_edit_book, register
+        # Calibre's SQL functions on the connection before writing (done per book: the pool may hand
+        # out another connection after a commit)
+        calibre_db.create_functions(config)
         recorder = None
         if self.recorder_factory is not None:
             recorder = self.recorder_factory(str(self.id), self.user_id, source=entry["source"], score=score)
