@@ -26,64 +26,103 @@ $(function () {
        )
     };
 
-    function getUniqueValues(attribute_name, book){
-        var presentArray = $.map($("#"+attribute_name).val().split(","), $.trim);
-        if ( presentArray.length === 1 && presentArray[0] === "") {
-            presentArray = [];
-        }
-        $.each(book[attribute_name], function(i, el) {
-            if ($.inArray(el, presentArray) === -1) presentArray.push(el);
+    function isbnInput() {
+        return $("#identifier-table input[name^='identifier-type-']").filter(function () {
+            return $(this).val().trim().toLowerCase() === "isbn";
+        }).first().closest("tr").find("input[name^='identifier-val-']");
+    }
+
+    function textValue(value) {
+        return typeof value === "string" || typeof value === "number" ? String(value) : "";
+    }
+
+    function editor() {
+        return typeof tinymce !== "undefined" ? tinymce.get("comments") : null;
+    }
+
+    function populateForm(book) {
+        var isbn = "";
+        Object.keys(book.identifiers || {}).forEach(function (key) {
+            if (key.toLowerCase() === "isbn") isbn = textValue(book.identifiers[key]);
         });
-        return presentArray
-    }
-
-    function populateForm (book) {
-        tinymce.get("comments").setContent(book.description);
-        var uniqueTags = getUniqueValues('tags', book)
-        var uniqueLanguages = getUniqueValues('languages', book)
-        var ampSeparatedAuthors = (book.authors || []).join(" & ");
-        $("#authors").val(ampSeparatedAuthors);
-        $("#title").val(book.title);
-        $("#tags").val(uniqueTags.join(", "));
-        $("#languages").val(uniqueLanguages.join(", "));
-        $("#rating").data("rating").setValue(Math.round(book.rating));
-        if(book.cover && $("#cover_url").length){
-            $(".cover img").attr("src", book.cover);
-            $("#cover_url").val(book.cover);
-        }
-        $("#pubdate").val(book.publishedDate);
-        $("#publisher").val(book.publisher);
-        if (typeof book.series !== "undefined") {
-            $("#series").val(book.series);
-            $("#series_index").val(book.series_index);
-        }
-        if (typeof book.identifiers !== "undefined") {
-            populateIdentifiers(book.identifiers)
-        }
-    }
-
-    function populateIdentifiers(identifiers){
-       for (const property in identifiers) {
-          console.log(`${property}: ${identifiers[property]}`);
-          if ($('input[name="identifier-type-'+property+'"]').length) {
-              $('input[name="identifier-val-'+property+'"]').val(identifiers[property])
-          }
-          else {
-              addIdentifier(property, identifiers[property])
-          }
-        }
-    }
-
-    function addIdentifier(name, value){
-        var line = '<tr>';
-        line += '<td><input type="text" class="form-control" name="identifier-type-'+ name +'" required="required" placeholder="' + _("Identifier Type") +'" value="'+ name +'"></td>';
-        line += '<td><input type="text" class="form-control" name="identifier-val-'+ name +'" required="required" placeholder="' + _("Identifier Value") +'" value="'+ value +'"></td>';
-        line += '<td><a class="btn btn-default" onclick="removeIdentifierLine(this)">'+_("Remove")+'</a></td>';
-        line += '</tr>';
-        $("#identifier-table").append(line);
+        var date = textValue(book.publishedDate);
+        var parsed = new Date(date);
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || isNaN(parsed.getTime()) ||
+                parsed.toISOString().slice(0, 10) !== date) date = "";
+        var cover = textValue(book.cover);
+        if (!/^https?:\/\//i.test(cover) || !$("#cover_url").length) cover = "";
+        var fields = [
+            ["title", msg.title, textValue(book.title)],
+            ["authors", msg.author, (book.authors || []).map(textValue).join(" & ")],
+            ["publisher", msg.publisher, textValue(book.publisher)],
+            ["pubdate", msg.pubdate, date],
+            ["isbn", "ISBN", isbn],
+            ["cover_url", msg.cover, cover],
+            ["comments", msg.comments, textValue(book.description)]
+        ];
+        var panel = $("#metadata-compare").empty().show();
+        $("<h4>").text(msg.compare).appendTo(panel);
+        $("<p>").text(msg.apply_hint).appendTo(panel);
+        var table = $("<table class='table table-bordered'>").appendTo(
+            $("<div class='table-responsive'>").appendTo(panel));
+        var head = $("<tr>").appendTo($("<thead>").appendTo(table));
+        [msg.field, msg.current, msg.candidate].forEach(function (label) {
+            $("<th scope='col'>").text(label).appendTo(head);
+        });
+        var body = $("<tbody>").appendTo(table);
+        var selected = [];
+        var apply = $("<button type='button' class='btn btn-primary'>").text(msg.apply).prop("disabled", true);
+        fields.forEach(function (field) {
+            var id = field[0], value = field[2];
+            var current = id === "isbn" ? isbnInput().val() :
+                id === "comments" && editor() ? editor().getContent() : $("#" + id).val();
+            if (id === "cover_url" && !current) current = $(".cover img").attr("src");
+            var row = $("<tr>").appendTo(body);
+            var label = $("<label>").appendTo($("<td>").appendTo(row));
+            var check = $("<input type='checkbox'>").prop("checked", false)
+                .prop("disabled", !value.trim()).appendTo(label);
+            label.append(document.createTextNode(" " + field[1]));
+            [current || "", value || msg.unavailable].forEach(function (content) {
+                $("<td>").css({"white-space": "pre-wrap", "overflow-wrap": "anywhere", "max-width": "300px"})
+                    .text(content).appendTo(row);
+            });
+            selected.push({check: check, id: id, value: value});
+            check.on("change", function () {
+                apply.prop("disabled", !selected.some(function (item) { return item.check.prop("checked"); }));
+            });
+        });
+        apply.appendTo(panel).on("click", function () {
+            selected.forEach(function (item) {
+                if (!item.check.prop("checked")) return;
+                if (item.id === "isbn") {
+                    var input = isbnInput();
+                    if (!input.length) {
+                        var row = $("<tr>").appendTo($("#identifier-table tbody"));
+                        var suffix = "f5-" + Date.now();
+                        $("<input type='text' class='form-control' required>").attr("name", "identifier-type-" + suffix)
+                            .val("isbn").appendTo($("<td>").appendTo(row));
+                        input = $("<input type='text' class='form-control' required>").attr("name", "identifier-val-" + suffix)
+                            .appendTo($("<td>").appendTo(row));
+                        $("<button type='button' class='btn btn-default'>").text(msg.remove)
+                            .on("click", function () { row.remove(); }).appendTo($("<td>").appendTo(row));
+                    }
+                    input.val(item.value);
+                } else if (item.id === "comments" && editor()) {
+                    editor().setContent(item.value);
+                } else {
+                    $("#" + item.id).val(item.value).trigger("change");
+                    if (item.id === "pubdate" && $.fn.datepicker) $("#pubdate").datepicker("update", item.value);
+                    if (item.id === "cover_url") $(".cover img").attr("src", item.value);
+                }
+            });
+            $("#metaModal").modal("hide");
+        });
+        $("<button type='button' class='btn btn-default'>").text(msg.cancel).appendTo(panel)
+            .on("click", function () { panel.empty().hide(); });
     }
 
     function doSearch (keyword) {
+        $("#metadata-compare").empty().hide();
         if (keyword) {
             $("#meta-info").text(msg.loading);
             $.ajax({
@@ -96,7 +135,7 @@ $(function () {
                         $("#meta-info").html("<ul id=\"book-list\" class=\"media-list\"></ul>");
                         data.forEach(function(book) {
                             var $book = $(templates.bookResult(book));
-                            $book.find("img").on("click", function () {
+                            $book.find("img, .metadata-compare-button").on("click", function () {
                                 populateForm(book);
                             });
                             $("#book-list").append($book);
@@ -153,7 +192,7 @@ $(function () {
                 element.data("initial", "true");
                 data.forEach(function(book) {
                     var $book = $(templates.bookResult(book));
-                    $book.find("img").on("click", function () {
+                    $book.find("img, .metadata-compare-button").on("click", function () {
                         populateForm(book);
                     });
                     $("#book-list").append($book);
@@ -177,6 +216,9 @@ $(function () {
         $("#keyword").val(bookTitle);
         keyword = bookTitle;
         doSearch(bookTitle);
+    });
+    $("#metaModal").on("hidden.bs.modal", function () {
+        $("#metadata-compare").empty().hide();
     });
     $("#metaModal").on("show.bs.modal", function(e) {
         $(e.relatedTarget).one('focus', function (e) {
