@@ -51,6 +51,37 @@ process.chdir(path.resolve(__dirname, '..'));
  await page.evaluate(()=>{$.ajax=o=>o.success(o.url.includes('/provider')?[]:[{title:'',authors:[],publishedDate:'2024-02-30',cover:'file:///bad',identifiers:{}}]);});
  await page.click('#get_meta');await page.click('.metadata-compare-button');
  if(await page.locator('#metadata-compare input:disabled').count()!==7)throw Error('Missing/invalid candidates');
+ // Regression: cover preview remains available without upload permission.
+ await page.evaluate(()=>{
+  $('#cover_url').remove();
+  i18nMsg.cover_permission='Preview only: upload permission required';
+  i18nMsg.loading='Loading...';i18nMsg.no_result='No results';i18nMsg.search_error='Search failed';
+  $.ajax=o=>o.success(o.url.includes('/provider')?[]:[{title:'Read-only cover',authors:[],cover:'https://example.com/cover.jpg'}]);
+ });
+ await page.click('#get_meta');await page.click('.metadata-compare-button');
+ await page.locator('#metadata-compare tbody tr').nth(5).locator('img').waitFor({state:'visible'});
+ if(!await checks.nth(5).isDisabled())throw Error('Cover permission not respected');
+ if(!await page.getByText('Preview only: upload permission required',{exact:true}).isVisible())throw Error('Permission explanation absent');
+ // Closing the modal clears a pending comparison without applying it.
+ await checks.nth(0).check();
+ const beforeClose=await page.inputValue('#title');
+ await page.evaluate(()=>$('#metaModal').trigger('hidden.bs.modal'));
+ if(await page.inputValue('#title')!==beforeClose || await checks.count())throw Error('Modal close mutation/reset');
+ // Empty results and request errors must replace, not retain, loading text.
+ await page.evaluate(()=>{$.ajax=o=>o.success([]);});
+ await page.click('#get_meta');
+ if(await page.locator('#meta-info').innerText()!=='No results')throw Error('Empty results retained loading');
+ await page.evaluate(()=>{$.ajax=o=>o.url.includes('/provider')?o.success([]):o.error();});
+ await page.click('#get_meta');
+ if(await page.locator('#meta-info').innerText()!=='Search failed')throw Error('Error retained loading');
+ // A provider enabled after an empty search can still add candidates.
+ await page.evaluate(()=>{
+  $('#metadata_provider').html('<input class="pill" data-control="fixture" data-initial="false" type="checkbox">');
+  $.ajax=o=>o.success([{title:'Late candidate',authors:[]}]);
+  $('.pill').prop('checked',true).trigger('change');
+ });
+ if(await page.locator('#book-list .metadata-compare-button').count()!==1)throw Error('Late provider results lost');
+ console.log('PASS: permission-aware cover preview, modal close, loading cleanup and late provider results.');
  console.log('PASS: cover/description previews, original HTML, missing ISBN insertion and other identifier preservation; all seven applied, invalid/missing candidates disabled;  seven fields, unchecked defaults, preview without mutation, selective title/ISBN apply, untouched author/tags, selection reset, cancellation. Mock data; no API or database validation.');await browser.close();
 })().catch(e=>{console.error(e);process.exit(1);});
 

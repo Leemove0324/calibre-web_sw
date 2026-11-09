@@ -82,7 +82,8 @@ $(function () {
         if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || isNaN(parsed.getTime()) ||
                 parsed.toISOString().slice(0, 10) !== date) date = "";
         var cover = textValue(book.cover);
-        if (!/^https?:\/\//i.test(cover) || !$("#cover_url").length) cover = "";
+        if (!/^https?:\/\//i.test(cover)) cover = "";
+        var canApplyCover = $("#cover_url").length > 0;
         var fields = [
             ["title", msg.title, textValue(book.title)],
             ["authors", msg.author, (book.authors || []).map(textValue).join(" & ")],
@@ -112,15 +113,19 @@ $(function () {
             var row = $("<tr>").appendTo(body);
             var label = $("<label>").appendTo($("<td>").appendTo(row));
             var check = $("<input type='checkbox'>").prop("checked", false)
-                .prop("disabled", !value.trim()).appendTo(label);
+                .prop("disabled", !value.trim() || (id === "cover_url" && !canApplyCover)).appendTo(label);
             label.append(document.createTextNode(" " + field[1]));
+            if (id === "cover_url" && !canApplyCover) {
+                $("<p class='text-muted'>").text(msg.cover_permission).appendTo(label.parent());
+            }
             [current || "", value].forEach(function (content, index) {
                 var cell = $("<td>").css({"white-space": "pre-wrap", "overflow-wrap": "anywhere", "max-width": "300px"})
                     .appendTo(row);
                 if (id === "cover_url") {
                     coverPreview(cell, content, index === 0 ? msg.current : msg.candidate);
                 } else {
-                    cell.text((id === "comments" ? descriptionText(content) : content) || msg.unavailable);
+                    cell.text((id === "comments" ? descriptionText(content) : content) ||
+                        (index === 0 ? msg.empty_value : msg.unavailable));
                 }
             });
             selected.push({check: check, id: id, value: value});
@@ -130,7 +135,7 @@ $(function () {
         });
         apply.appendTo(panel).on("click", function () {
             selected.forEach(function (item) {
-                if (!item.check.prop("checked")) return;
+                if (item.check.prop("disabled") || !item.check.prop("checked")) return;
                 if (item.id === "isbn") {
                     var input = isbnInput();
                     if (!input.length) {
@@ -179,11 +184,11 @@ $(function () {
                         });
                     }
                     else {
-                        $("#meta-info").html("<p class=\"text-danger\">" + msg.no_result + "</p>" + $("#meta-info")[0].innerHTML)
+                        $("#meta-info").empty().append($("<p class='text-danger'>").text(msg.no_result));
                     }
                 },
                 error: function error() {
-                    $("#meta-info").html("<p class=\"text-danger\">" + msg.search_error + "</p>" + $("#meta-info")[0].innerHTML);
+                    $("#meta-info").empty().append($("<p class='text-danger'>").text(msg.search_error));
                 },
             });
         }
@@ -227,6 +232,10 @@ $(function () {
             data: JSON.stringify(params),
             success: function success(data) {
                 element.data("initial", "true");
+                if (!Array.isArray(data)) return;
+                if (data.length && !$("#book-list").length) {
+                    $("#meta-info").empty().append($("<ul id='book-list' class='media-list'>"));
+                }
                 data.forEach(function(book) {
                     var $book = $(templates.bookResult(book));
                     $book.find("img, .metadata-compare-button").on("click", function () {
