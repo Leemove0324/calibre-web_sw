@@ -40,6 +40,38 @@ $(function () {
         return typeof tinymce !== "undefined" ? tinymce.get("comments") : null;
     }
 
+    // Parse in an inert template, then render only text in the comparison table.
+    // The original HTML remains unchanged when the user applies the description.
+    function descriptionText(html) {
+        var template = document.createElement("template");
+        template.innerHTML = html;
+        var excluded = /^(SCRIPT|STYLE|IFRAME|OBJECT|EMBED|NOSCRIPT|TEMPLATE)$/;
+        var blocks = /^(P|DIV|LI|UL|OL|H[1-6]|BLOCKQUOTE|PRE|TR|SECTION|ARTICLE)$/;
+        function read(node) {
+            if (node.nodeType === 3) return node.nodeValue;
+            if (excluded.test(node.nodeName)) return "";
+            if (node.nodeName === "BR") return "\n";
+            var text = Array.prototype.map.call(node.childNodes, read).join("");
+            return blocks.test(node.nodeName) ? "\n" + text + "\n" : text;
+        }
+        return read(template.content).replace(/\n[ \t]+/g, "\n").replace(/\n{3,}/g, "\n\n").trim();
+    }
+
+    function coverPreview(cell, source, label) {
+        var fallback = $("<span class='text-muted'>").text(msg.cover_unavailable).appendTo(cell);
+        if (!source) return;
+        // Only web images are previewed; local relative cover routes are supported.
+        var url;
+        try { url = new URL(source, window.location.href); } catch (error) { return; }
+        if (url.protocol !== "http:" && url.protocol !== "https:") return;
+        var image = $("<img>").attr({alt: label, referrerpolicy: "no-referrer"})
+            .css({width: "100%", height: "150px", "max-width": "110px", "object-fit": "contain"})
+            .hide().appendTo(cell);
+        image.on("load", function () { fallback.hide(); image.show(); });
+        image.on("error", function () { image.hide(); fallback.show(); });
+        image.attr("src", url.href);
+    }
+
     function populateForm(book) {
         var isbn = "";
         Object.keys(book.identifiers || {}).forEach(function (key) {
@@ -82,9 +114,14 @@ $(function () {
             var check = $("<input type='checkbox'>").prop("checked", false)
                 .prop("disabled", !value.trim()).appendTo(label);
             label.append(document.createTextNode(" " + field[1]));
-            [current || "", value || msg.unavailable].forEach(function (content) {
-                $("<td>").css({"white-space": "pre-wrap", "overflow-wrap": "anywhere", "max-width": "300px"})
-                    .text(content).appendTo(row);
+            [current || "", value].forEach(function (content, index) {
+                var cell = $("<td>").css({"white-space": "pre-wrap", "overflow-wrap": "anywhere", "max-width": "300px"})
+                    .appendTo(row);
+                if (id === "cover_url") {
+                    coverPreview(cell, content, index === 0 ? msg.current : msg.candidate);
+                } else {
+                    cell.text((id === "comments" ? descriptionText(content) : content) || msg.unavailable);
+                }
             });
             selected.push({check: check, id: id, value: value});
             check.on("change", function () {
