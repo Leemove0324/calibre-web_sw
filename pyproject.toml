@@ -127,3 +127,17 @@ include-package-data = true
 
 [tool.setuptools.dynamic]
 version = {attr = "calibreweb.cps.constants.STABLE_VERSION"}
+
+# F9 (#11): 테스트·커버리지 설정. 실행: python -m pytest
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "live: 실제 외부 API를 호출하는 테스트 (키 필요, 기본으로 건너뜀. 실행: pytest -m live --run-live)",
+]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+]
+
+[tool.coverage.run]
+source = ["cps"]
+omit = ["cps/static/*", "cps/templates/*"]
