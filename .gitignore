@@ -35,3 +35,9 @@ gdrive_credentials
 client_secrets.json
 gmail.json
 /.key
+
+# F9 (#11): 테스트 커버리지 결과
+.coverage
+.coverage.*
+coverage.json
+htmlcov/
