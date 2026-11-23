@@ -107,11 +107,16 @@ def calibre_library(app, tmp_path):
 
 @pytest.fixture
 def calibre_session(app, calibre_library):
-    """임시 서재의 metadata.db 세션 (app context 안에서)."""
-    from cps import db
+    """임시 서재의 metadata.db 세션 (app context 안에서). 책을 고치고 commit할 수 있다.
+
+    books의 INSERT/UPDATE 트리거가 Calibre SQL 함수(title_sort·uuid4)를 부르므로,
+    실제 앱(editbooks.do_edit_book, TaskFetchMetadata)처럼 연결에 함수를 등록해 둔다.
+    """
+    from cps import config, db
     with app.app_context():
         calibre_db = db.CalibreDB(app)
         session = calibre_db.session
+        calibre_db.create_functions(config)
         yield session
         session.close()
 
