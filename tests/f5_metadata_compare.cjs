@@ -84,5 +84,3 @@ process.chdir(path.resolve(__dirname, '..'));
  console.log('PASS: permission-aware cover preview, modal close, loading cleanup and late provider results.');
  console.log('PASS: cover/description previews, original HTML, missing ISBN insertion and other identifier preservation; all seven applied, invalid/missing candidates disabled;  seven fields, unchecked defaults, preview without mutation, selective title/ISBN apply, untouched author/tags, selection reset, cancellation. Mock data; no API or database validation.');await browser.close();
 })().catch(e=>{console.error(e);process.exit(1);});
-
-
