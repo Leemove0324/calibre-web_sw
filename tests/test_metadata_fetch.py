@@ -193,13 +193,13 @@ def test_apply_fills_only_empty_fields(mf, calibre_session, no_cover_download):
     assert sorted(t.name for t in book.tags) == ["소설", "한국"]
     assert book.has_cover and no_cover_download == ["https://example.invalid/c.jpg"]
     # F7 연결: 바꾸기 직전에 (책, 칸, 이전 값, 새 값) 순서로 기록을 부른다
-    assert [c[1] for c in calls] == changed and calls[0][2] == "" and calls[0][0] == book.id
+    assert [c[1] for c in calls] == changed and calls[0][2] == "" and calls[0][0] is book
 
 
 def test_apply_skips_field_when_recording_fails(mf, calibre_session):
     book = book_by_title(calibre_session, "아몬드")
 
-    def recorder(book_id, field, old, new):
+    def recorder(book, field, old, new):
         if field == "comments":
             raise RuntimeError("app.db 잠김")
     changed = mf.apply_record(calibre_session, book, record("아몬드", ["손원평"], publisher="창비",
@@ -254,7 +254,7 @@ def test_task_results_per_book(mf, app, calibre_library):
     recorded = []
 
     def factory(task_id, user_id, source, score):
-        return lambda book_id, field, old, new: recorded.append((user_id, book_id, field, old, new, source, score))
+        return lambda book, field, old, new: recorded.append((user_id, book.id, field, old, new, source, score))
 
     task = mf.TaskFetchMetadata([ids[t] for t in wanted] + [99999, ids["채식주의자"]], user_id=1,
                                 search=fake_search, recorder_factory=factory)
@@ -346,3 +346,9 @@ def test_route_status_unknown_task(admin_client, calibre_library):
 def test_route_needs_login(client, calibre_library, queued):
     resp = post_bulk(client, {"book_ids": [1]})
     assert resp.status_code in (302, 401) and not queued
+
+
+def test_new_tags_drop_repeats(mf):
+    """제공처가 같은 태그를 두 번 주면 tags.name UNIQUE 오류로 책 전체가 실패했었다 (F7 시험 중 발견)."""
+    rec = record("채식주의자", ["한강"], tags=["소설", "소설 ", "Fiction", "fiction", "a,b", ""])
+    assert mf._new_value(rec, "tags") == "소설,Fiction,a b"

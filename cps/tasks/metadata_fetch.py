@@ -200,7 +200,13 @@ def _new_value(record, field):
     if field == FIELD_ISBN:
         return _clean_isbn((record.identifiers or {}).get("isbn"))
     if field == FIELD_TAGS:
-        return ",".join(t.strip() for t in (record.tags or []) if t and t.strip())
+        # providers can repeat a tag ("소설", "소설"); tags.name is unique (NOCASE), so keep the first
+        tags = {}
+        for tag in record.tags or []:
+            tag = (tag or "").strip().replace(",", " ")
+            if tag and tag.casefold() not in tags:
+                tags[tag.casefold()] = tag
+        return ",".join(tags.values())
     if field == FIELD_COVER:
         cover = record.cover or ""
         return cover if cover.startswith(("http://", "https://")) else ""
@@ -259,8 +265,9 @@ def apply_record(session, book, record, fields=DEFAULT_FIELDS, only_empty=True, 
     """Fill the book's fields from one candidate record.
 
     - only_empty=True (the default): fields that already have a value are left alone.
-    - recorder(book_id, field, old_value, new_value): called BEFORE each change, so F7 can
-      store the old value first. If it raises, that field is skipped.
+    - recorder(book, field, old_value, new_value): called BEFORE each change, so F7 (#9) can
+      store the old value first. If it raises, that field is skipped. If the recorder has a
+      cancel(book, field) method, it is called when the write then changes nothing.
     Returns the list of fields that were changed. The caller commits.
     """
     changed = []
@@ -275,12 +282,14 @@ def apply_record(session, book, record, fields=DEFAULT_FIELDS, only_empty=True, 
             continue
         if recorder is not None:
             try:
-                recorder(book.id, field, old, new)
+                recorder(book, field, old, new)
             except Exception as ex:
                 log.error("Could not record history for book %s field %s: %s", book.id, field, ex)
                 continue
         if _write_field(session, book, field, new):
             changed.append(field)
+        elif recorder is not None and hasattr(recorder, "cancel"):
+            recorder.cancel(book, field)
     if changed:
         book.last_modified = datetime.now(timezone.utc)
     return changed
@@ -305,7 +314,9 @@ class TaskFetchMetadata(CalibreTask):
         # provider_ids: the providers the user switched on (None = all active ones)
         self.provider_ids = set(provider_ids) if provider_ids is not None else None
         self.search = search or functools.partial(default_search, provider_ids=self.provider_ids)
-        # recorder_factory(task_id, user_id) -> recorder(book_id, field, old, new, ...); F7 plugs in here
+        # recorder_factory(task_id, user_id, source=, score=) -> recorder(book, field, old, new), one per
+        # book. F7 (cps/services/metadata_history.py) plugs in here; optional recorder methods:
+        # cancel(book, field), confirm(book) after the commit, discard() when the change failed
         self.recorder_factory = recorder_factory
         self.results = []  # one dict per book: book_id, title, result, score, source, fields
 
@@ -361,6 +372,9 @@ class TaskFetchMetadata(CalibreTask):
                 self._handleError("Error fetching metadata: {}".format(ex))
             finally:
                 calibre_db.session.close()
+                close_history = getattr(self.recorder_factory, "close", None)
+                if close_history is not None:
+                    close_history()  # F7: the history session of this task
 
     def _load_items(self, session):
         """Read what the search needs into plain dicts, so search threads never touch the DB session."""
@@ -421,13 +435,27 @@ class TaskFetchMetadata(CalibreTask):
             calibre_db.session.commit()
         except Exception as ex:
             calibre_db.session.rollback()
+            self._discard_history(recorder, item["book_id"])
             self.log.error("Applying metadata to book %s failed: %s", item["book_id"], ex)
             entry["result"] = RESULT_FAILED
             entry["error"] = str(ex)
             return entry
+        if recorder is not None and hasattr(recorder, "confirm"):
+            try:
+                recorder.confirm(book)  # store the values as metadata.db now holds them
+            except Exception as ex:
+                self.log.error("Could not confirm history for book %s: %s", item["book_id"], ex)
         entry["fields"] = changed
         entry["result"] = RESULT_APPLIED if changed else RESULT_UNCHANGED
         return entry
+
+    def _discard_history(self, recorder, book_id):
+        if recorder is None or not hasattr(recorder, "discard"):
+            return
+        try:
+            recorder.discard()
+        except Exception as ex:
+            self.log.error("Could not discard history for book %s: %s", book_id, ex)
 
     def counts(self):
         counts = {RESULT_APPLIED: 0, RESULT_PENDING: 0, RESULT_NO_MATCH: 0, RESULT_UNCHANGED: 0, RESULT_FAILED: 0}
