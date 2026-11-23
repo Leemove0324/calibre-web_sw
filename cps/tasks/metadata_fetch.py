@@ -28,6 +28,7 @@ folder on disk (helper.update_dir_structure), which is too risky in bulk.
 """
 
 import concurrent.futures
+import functools
 import re
 from datetime import datetime, timezone
 from difflib import SequenceMatcher
@@ -83,16 +84,39 @@ def temporary_score(item, record):
         return 1.0
     title_score = SequenceMatcher(None, _normalize(item.get("title")), _normalize(record.title)).ratio()
     wanted = {_normalize(a) for a in item.get("authors", []) if a}
+    if not wanted:
+        # No known author: judge by the title alone, so these books are not always
+        # "pending review" (with authors the best possible score would be 0.7 < theta).
+        return round(title_score, 4)
     found = {_normalize(a) for a in (record.authors or []) if a}
-    author_score = len(wanted & found) / len(wanted) if wanted else 0.0
+    author_score = len(wanted & found) / len(wanted)
     return round(0.7 * title_score + 0.3 * author_score, 4)
 
 
-def default_search(item):
-    """Search every active provider for one book and return [(record, score)], best first.
+# Calibre stores "Unknown" when a book has no author; it must not count as an author.
+UNKNOWN_AUTHORS = {"unknown", "알수없음"}
 
-    Runs outside a web request, so it calls the provider classes directly instead of
-    the /metadata/search route. F3 will replace this with its search_book() function.
+
+def known_authors(names):
+    return [n for n in names if n and _normalize(n) not in UNKNOWN_AUTHORS]
+
+
+class SearchFailed(str):
+    """Marks a search that raised, carrying its message (kept apart from an empty result)."""
+
+
+class SearchUnavailable(Exception):
+    """No provider could be asked (all disabled) or every provider asked raised an error."""
+
+
+def default_search(item, provider_ids=None):
+    """Search the enabled providers for one book and return [(record, score)], best first.
+
+    provider_ids: ids the user switched on (None = every active provider), the same
+    choice /metadata/search honours. Runs outside a web request, so it calls the
+    provider classes directly. F3 will replace this with its search_book() function.
+    Raises SearchUnavailable when nothing could be searched, so the task reports
+    "failed" instead of a misleading "no match".
     """
     from cps.search_metadata import cl  # late import: search_metadata imports this module
 
@@ -101,15 +125,22 @@ def default_search(item):
         return []
     locale = Locale("ko")  # providers expect a babel Locale (they read .language from it)
     records = []
+    asked = errors = 0
     for provider in cl:
-        if not provider.active:
+        if not provider.active or (provider_ids is not None and provider.__id__ not in provider_ids):
             continue
+        asked += 1
         try:
             found = provider.search(query, "", locale)
         except Exception as ex:  # one broken provider must not stop the whole task
+            errors += 1
             log.warning("Metadata provider %s failed: %s", provider.__id__, ex)
             continue
         records.extend(r for r in (found or []) if r)
+    if asked == 0:
+        raise SearchUnavailable("No metadata provider is enabled")
+    if not records and errors == asked:
+        raise SearchUnavailable("Every metadata provider failed")
     scored = [(record, temporary_score(item, record)) for record in records]
     scored.sort(key=lambda pair: pair[1], reverse=True)
     return scored
@@ -263,14 +294,17 @@ class TaskFetchMetadata(CalibreTask):
     """Fetch metadata for the selected books. Shows up on the /tasks page."""
 
     def __init__(self, book_ids, user_id, threshold=DEFAULT_THRESHOLD, fields=DEFAULT_FIELDS,
-                 search=None, recorder_factory=None, task_message=N_("Fetching metadata")):
+                 search=None, recorder_factory=None, provider_ids=None,
+                 task_message=N_("Fetching metadata")):
         super(TaskFetchMetadata, self).__init__(task_message)
         self.log = logger.create()
         self.book_ids = list(dict.fromkeys(int(b) for b in book_ids))  # unique, order kept
         self.user_id = user_id
         self.threshold = threshold
         self.fields = tuple(fields)
-        self.search = search or default_search
+        # provider_ids: the providers the user switched on (None = all active ones)
+        self.provider_ids = set(provider_ids) if provider_ids is not None else None
+        self.search = search or functools.partial(default_search, provider_ids=self.provider_ids)
         # recorder_factory(task_id, user_id) -> recorder(book_id, field, old, new, ...); F7 plugs in here
         self.recorder_factory = recorder_factory
         self.results = []  # one dict per book: book_id, title, result, score, source, fields
@@ -309,7 +343,13 @@ class TaskFetchMetadata(CalibreTask):
                         for item, candidates in zip(chunk, found):
                             if self._cancelled():
                                 break
-                            self.results.append(self._handle_book(calibre_db, item, candidates))
+                            entry = self._handle_book(calibre_db, item, candidates)
+                            self.results.append(entry)
+                            # one line per book, so a person can see why a book was held back
+                            self.log.info("Fetch metadata: book %s (%s) -> %s, score %s, source %s, fields %s%s",
+                                          entry["book_id"], entry["title"], entry["result"], entry["score"],
+                                          entry["source"] or "-", ",".join(entry["fields"]) or "-",
+                                          ", " + entry["error"] if entry.get("error") else "")
                             done += 1
                             self.progress = done / total
                 self.message = self._summary()
@@ -334,23 +374,24 @@ class TaskFetchMetadata(CalibreTask):
                                      "score": None, "source": "", "fields": [], "error": "Book not found"})
                 continue
             items.append({"book_id": book.id, "title": book.title,
-                          "authors": [a.name.replace("|", ",") for a in book.authors],
+                          "authors": known_authors(a.name.replace("|", ",") for a in book.authors),
                           "isbn": _clean_isbn(_book_isbn(book))})
         return items
 
     def _safe_search(self, item):
+        """Returns the candidates, or the error text when the search itself failed."""
         try:
             return self.search(item)
         except Exception as ex:
             self.log.warning("Search failed for book %s: %s", item["book_id"], ex)
-            return None
+            return SearchFailed(str(ex) or ex.__class__.__name__)
 
     def _handle_book(self, calibre_db, item, candidates):
         entry = {"book_id": item["book_id"], "title": item["title"], "result": RESULT_NO_MATCH,
                  "score": None, "source": "", "fields": []}
-        if candidates is None:
+        if candidates is None or isinstance(candidates, SearchFailed):
             entry["result"] = RESULT_FAILED
-            entry["error"] = "Search failed"
+            entry["error"] = "Search failed: {}".format(candidates) if candidates else "Search failed"
             return entry
         if not candidates:
             return entry

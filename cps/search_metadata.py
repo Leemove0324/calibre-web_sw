@@ -191,7 +191,10 @@ def metadata_bulk_fetch():
         return make_response(jsonify(error="No books selected"), 400)
     if len(book_ids) > BULK_MAX_BOOKS:
         return make_response(jsonify(error="Select at most {} books".format(BULK_MAX_BOOKS)), 400)
-    task = TaskFetchMetadata(book_ids, current_user.id)
+    # same provider on/off choice as /metadata/search (the user's metadata view settings)
+    active = current_user.view_settings.get("metadata", {})
+    provider_ids = [c.__id__ for c in cl if active.get(c.__id__, True)]
+    task = TaskFetchMetadata(book_ids, current_user.id, provider_ids=provider_ids)
     WorkerThread.add(current_user.name, task)
     return make_response(jsonify(task_id=str(task.id), books=len(task.book_ids)), 202)
 
