@@ -1,5 +1,7 @@
 # Calibre-Web
 
+> **공개SW실무 4조 팀 저장소** — 기준 버전 0.6.27. 팀 작업 규칙·담당·일정은 [TEAM.md](TEAM.md)를 먼저 읽어 주세요.
+
 Calibre-Web is a web app that offers a clean and intuitive interface for browsing, reading, and downloading eBooks using a valid [Calibre](https://calibre-ebook.com) database.
 
 [![License](https://img.shields.io/github/license/janeczku/calibre-web?style=flat-square)](https://github.com/janeczku/calibre-web/blob/master/LICENSE)
