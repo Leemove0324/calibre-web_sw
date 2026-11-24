@@ -33,13 +33,16 @@ RECORDED = os.path.join(os.path.dirname(__file__), "data", "kakao_response.json"
 class FakeResponse:
     """requests.get이 돌려주는 응답을 흉내 내는 가짜"""
 
-    def __init__(self, data):
+    def __init__(self, data=None, error=None):
         self._data = data
+        self._error = error
 
     def raise_for_status(self):
         pass
 
     def json(self):
+        if self._error:
+            raise self._error
         return self._data
 
 
@@ -132,6 +135,33 @@ def test_search_by_isbn_sets_target(monkeypatch):
     monkeypatch.setattr("cps.metadata_provider.kakao.requests.get", fake_get)
     Kakao().search("9788996991359", locale="en")
     assert captured["params"]["target"] == "isbn"
+
+
+def test_search_by_isbn_strips_hyphens(monkeypatch):
+    # ISBN 검색은 하이픈과 공백을 뺀 숫자만 보내야 한다
+    monkeypatch.setenv("KAKAO_REST_API_KEY", "dummy-key")
+    captured = {}
+
+    def fake_get(url, params=None, headers=None, timeout=None):
+        captured["params"] = params
+        return FakeResponse({"documents": []})
+
+    monkeypatch.setattr("cps.metadata_provider.kakao.requests.get", fake_get)
+    Kakao().search("978-89-96991-35-9", locale="en")
+    assert captured["params"]["query"] == "9788996991359"
+    assert captured["params"]["target"] == "isbn"
+
+
+def test_search_returns_empty_on_bad_json(monkeypatch):
+    # 카카오가 JSON이 아닌 답(오류 페이지 등)을 줘도 죽지 않고 빈 목록을 돌려줘야 한다.
+    # 예외가 밖으로 나가면 다른 제공처 결과까지 같이 실패한다.
+    monkeypatch.setenv("KAKAO_REST_API_KEY", "dummy-key")
+
+    def fake_get(*args, **kwargs):
+        return FakeResponse(error=ValueError("JSON이 아님"))
+
+    monkeypatch.setattr("cps.metadata_provider.kakao.requests.get", fake_get)
+    assert Kakao().search("미움받을 용기", locale="en") == []
 
 
 def test_search_returns_empty_on_request_error(monkeypatch):
