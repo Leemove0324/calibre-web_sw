@@ -5,3 +5,4 @@ cps/metadata_provider/kakao.py   # F1
 cps/metadata_provider/nlgo.py    # F1
 cps/tasks/metadata_fetch.py      # F6
 cps/services/query_analyzer.py   # F2
+cps/services/book_search.py      # F3
