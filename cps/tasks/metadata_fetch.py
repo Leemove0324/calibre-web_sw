@@ -129,6 +129,10 @@ def default_search(item, provider_ids=None):
     for provider in cl:
         if not provider.active or (provider_ids is not None and provider.__id__ not in provider_ids):
             continue
+        # F8: a provider without its API key is not asked at all (objects without the
+        # method, e.g. test doubles, count as configured)
+        if not getattr(provider, "is_configured", lambda: True)():
+            continue
         asked += 1
         try:
             found = provider.search(query, "", locale)
@@ -138,7 +142,7 @@ def default_search(item, provider_ids=None):
             continue
         records.extend(r for r in (found or []) if r)
     if asked == 0:
-        raise SearchUnavailable("No metadata provider is enabled")
+        raise SearchUnavailable("No metadata provider is enabled or configured")
     if not records and errors == asked:
         raise SearchUnavailable("Every metadata provider failed")
     scored = [(record, temporary_score(item, record)) for record in records]

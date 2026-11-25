@@ -17,18 +17,19 @@
 #  along with this program. If not, see <http://www.gnu.org/licenses/>.
  
 # 국립중앙도서관 ISBN 서지정보 API (계획서 표 25, 확장 기능 E1)
-# 인증키(cert_key)는 코드에 적지 않고 환경 변수로만 읽는다.
+# 인증키(cert_key)는 코드에 적지 않는다.
 #
 # 주의: 이 파일은 계획서와 공개된 사용 예를 바탕으로 만든 초안이다.
 # 응답의 항목 이름(docs, TITLE, AUTHOR ...)은 키를 받아 실제 응답을 저장해서
 # 확인한 뒤 맞춰야 한다.
-import os
+# F8: 인증키는 관리자 설정(app.db에 암호화 저장)에서 먼저 읽고, 없으면 환경 변수를 읽는다.
 from datetime import datetime
 from typing import Dict, List, Optional
  
 import requests
  
 from cps import logger
+from cps.services import metadata_settings
 from cps.services.Metadata import MetaRecord, MetaSourceInfo, Metadata
  
 log = logger.create()
@@ -40,9 +41,12 @@ class NationalLibrary(Metadata):
     DESCRIPTION = "National Library of Korea"
     META_URL = "https://www.nl.go.kr/seoji/"
     SEARCH_URL = "https://www.nl.go.kr/seoji/SearchApi.do"
-    API_KEY_ENV = "NLGO_CERT_KEY"  # 환경 변수 이름
-    TIMEOUT = 5  # 응답이 없을 때 무한정 기다리지 않도록 (초)
+    API_KEY_ENV = "NLGO_CERT_KEY"  # 관리자 설정에 키가 없을 때 읽는 환경 변수
     PAGE_SIZE = 10  # 한 번에 가져올 책 수
+
+    def is_configured(self) -> bool:
+        # F8: 인증키가 있어야 쓸 수 있다. 검색·목록 때마다 확인하므로 재시작이 필요 없다.
+        return bool(metadata_settings.api_key(self.__id__))
  
     def search(
         self, query: str, generic_cover: str = "", locale: str = "en"
@@ -51,10 +55,10 @@ class NationalLibrary(Metadata):
         if not self.active:
             return val
  
-        api_key = os.environ.get(NationalLibrary.API_KEY_ENV, "")
+        api_key = metadata_settings.api_key(self.__id__)
         if not api_key:
             log.warning(
-                "NLGO: 환경 변수 %s 가 설정되지 않았습니다.",
+                "NLGO: 인증키가 없습니다 (관리자 설정 또는 환경 변수 %s).",
                 NationalLibrary.API_KEY_ENV,
             )
             return val
@@ -78,7 +82,7 @@ class NationalLibrary(Metadata):
             results = requests.get(
                 NationalLibrary.SEARCH_URL,
                 params=params,
-                timeout=NationalLibrary.TIMEOUT,
+                timeout=metadata_settings.timeout(),  # F8: 관리자 설정의 시간 제한
             )
             results.raise_for_status()
             documents = results.json().get("docs", [])

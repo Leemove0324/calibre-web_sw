@@ -30,6 +30,7 @@ from flask_babel import get_locale
 from sqlalchemy.exc import InvalidRequestError, OperationalError
 from sqlalchemy.orm.attributes import flag_modified
 
+from cps.services import metadata_settings
 from cps.services.Metadata import Metadata
 from cps.services.worker import WorkerThread
 from cps.tasks.metadata_fetch import TaskFetchMetadata
@@ -120,8 +121,10 @@ def metadata_provider():
     provider = list()
     for c in cl:
         ac = active.get(c.__id__, True)
+        # F8: "configured" is False while a provider lacks its API key; the page shows it disabled
         provider.append(
-            {"name": c.__name__, "active": ac, "initial": ac, "id": c.__id__}
+            {"name": c.__name__, "active": ac, "initial": ac, "id": c.__id__,
+             "configured": c.is_configured()}
         )
     return make_response(jsonify(provider))
 
@@ -146,7 +149,7 @@ def metadata_change_active_provider(prov_name):
     if "initial" in new_state and prov_name:
         data = []
         provider = next((c for c in cl if c.__id__ == prov_name), None)
-        if provider is not None:
+        if provider is not None and provider.is_configured():
             data = provider.search(new_state.get("query", ""))
         return make_response(jsonify(_serialize_metadata_records(data)))
     return ""
@@ -166,7 +169,7 @@ def metadata_search():
             meta = {
                 executor.submit(c.search, query, static_cover, locale): c
                 for c in cl
-                if active.get(c.__id__, True)
+                if active.get(c.__id__, True) and c.is_configured()  # F8: skip providers without a key
             }
             for future in concurrent.futures.as_completed(meta):
                 data.extend(_serialize_metadata_records(future.result()))
@@ -194,7 +197,9 @@ def metadata_bulk_fetch():
     # same provider on/off choice as /metadata/search (the user's metadata view settings)
     active = current_user.view_settings.get("metadata", {})
     provider_ids = [c.__id__ for c in cl if active.get(c.__id__, True)]
-    task = TaskFetchMetadata(book_ids, current_user.id, provider_ids=provider_ids)
+    # F8: the threshold comes from the admin page, read when the task is created
+    task = TaskFetchMetadata(book_ids, current_user.id, provider_ids=provider_ids,
+                             threshold=metadata_settings.threshold())
     WorkerThread.add(current_user.name, task)
     return make_response(jsonify(task_id=str(task.id), books=len(task.book_ids)), 202)
 

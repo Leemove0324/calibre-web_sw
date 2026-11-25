@@ -60,6 +60,14 @@ class Metadata:
     def set_status(self, state):
         self.active = state
 
+    def is_configured(self) -> bool:
+        """F8: False while the provider cannot work yet (e.g. its API key is missing).
+
+        Checked on every search and provider listing, so saving or removing a key
+        on the admin page takes effect without a restart.
+        """
+        return True
+
     @abc.abstractmethod
     def search(
         self, query: str, generic_cover: str = "", locale: str = "en"
