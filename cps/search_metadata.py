@@ -35,6 +35,9 @@ from cps.services.worker import WorkerThread
 from cps.tasks.metadata_fetch import TaskFetchMetadata
 from . import constants, logger, ub, web_server
 from .usermanagement import user_login_required
+# F2·F3: 검색어 정리와 결과 통합·순위화
+from cps.services.book_search import rank_records
+from cps.services.query_analyzer import analyze_query
 
 
 meta = Blueprint("metadata", __name__)
@@ -160,6 +163,9 @@ def metadata_search():
     active = current_user.view_settings.get("metadata", {})
     locale = get_locale()
     if query:
+        # F2: 판 표기·인용 부호를 지운 검색어 (맞는 ISBN이면 ISBN-13)
+        analysis = analyze_query(query)
+        query = analysis.isbn13 or analysis.title or query
         static_cover = url_for("static", filename="generic_cover.jpg")
         # ret = cl[0].search(query, static_cover, locale)
         with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
@@ -169,7 +175,14 @@ def metadata_search():
                 if active.get(c.__id__, True)
             }
             for future in concurrent.futures.as_completed(meta):
-                data.extend(_serialize_metadata_records(future.result()))
+                data.extend(r for r in (future.result() or []) if r)
+        # F3: 같은 ISBN 결과를 합치고 점수 높은 순으로 정렬
+        ranked = rank_records(data, isbn=analysis.isbn13, title=analysis.title)
+        data = []
+        for record, score in ranked:
+            item = _serialize_metadata_records([record])[0]
+            item["score"] = score
+            data.append(item)
     return make_response(jsonify(data))
 
 
