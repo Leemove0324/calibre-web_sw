@@ -195,3 +195,42 @@ def test_analyze_spacing_variant_has_same_key():
 def test_analyze_empty_query(query):
     result = analyze_query(query)
     assert result.title == "" and result.isbn13 == "" and not result.isbn_like
+
+
+# ---------------------------------------------------------------------------
+# POST /metadata/search: 제공처에 정리한 검색어를 보낸다
+# ---------------------------------------------------------------------------
+
+class RecordingProvider:
+    __id__ = "fake"
+    __name__ = "Fake"
+    active = True
+
+    def __init__(self):
+        self.queries = []
+
+    def is_configured(self):
+        return True
+
+    def search(self, query, generic_cover="", locale=None):
+        self.queries.append(query)
+        return []
+
+
+@pytest.fixture
+def recording_provider(monkeypatch):
+    import cps.search_metadata as sm
+    provider = RecordingProvider()
+    monkeypatch.setattr(sm, "cl", [provider])
+    return provider
+
+
+@pytest.mark.parametrize("query, sent", [
+    ("[리커버] 《이방인》", "이방인"),              # 판 표기·인용 부호 제거
+    ("89-364-3412-8", "9788936434120"),            # 맞는 ISBN은 ISBN-13으로
+    ("978-89-364-3412-1", "978-89-364-3412-1"),    # 틀린 ISBN은 입력 그대로
+])
+def test_route_sends_cleaned_query(admin_client, calibre_library, recording_provider, query, sent):
+    resp = admin_client.post("/metadata/search", data={"query": query})
+    assert resp.status_code == 200
+    assert recording_provider.queries == [sent]
