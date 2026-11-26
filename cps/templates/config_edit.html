@@ -167,6 +167,34 @@
       <label for="config_googlebooks_api_key">{{_('Google Books API Key')}}</label>
       <input type="text" class="form-control" id="config_googlebooks_api_key" name="config_googlebooks_api_key" value="{% if config.config_googlebooks_api_key != '' %}{{ config.config_googlebooks_api_key }}{% endif %}" autocomplete="off">
     </div>
+    {# F8: domestic metadata providers. Saved keys are never sent back to the page. #}
+    {% macro metadata_key_field(field, label, state) %}
+    <div class="form-group">
+      <label for="{{ field }}">{{ label }}</label>
+      <input type="password" class="form-control" id="{{ field }}" name="{{ field }}" value="" autocomplete="new-password"
+             placeholder="{% if state.source == 'config' %}{{_('A key is saved. Leave empty to keep it.')}}{% endif %}">
+      <p class="help-block">
+        {% if state.source == 'config' %}{{_('Using the key saved here.')}}
+        {% elif state.source == 'env' %}{{_('Using the environment variable %(name)s.', name=state.env)}}
+        {% else %}{{_('No key. This provider stays off until a key is saved.')}}{% endif %}
+      </p>
+      {% if state.source == 'config' %}
+      <input type="checkbox" id="{{ field }}_delete" name="{{ field }}_delete">
+      <label for="{{ field }}_delete">{{_('Remove the saved key')}}</label>
+      {% endif %}
+    </div>
+    {% endmacro %}
+    {{ metadata_key_field('config_kakao_api_key_e', _('Kakao Books REST API Key'), metadata_keys['kakao']) }}
+    {{ metadata_key_field('config_nlgo_api_key_e', _('National Library of Korea API Key'), metadata_keys['nlgo']) }}
+    <div class="form-group">
+      <label for="config_metadata_timeout">{{_('Metadata provider timeout (seconds)')}}</label>
+      <input type="number" min="1" max="60" step="1" class="form-control" id="config_metadata_timeout" name="config_metadata_timeout" value="{{ config.config_metadata_timeout }}" required>
+    </div>
+    <div class="form-group">
+      <label for="config_metadata_threshold">{{_('Bulk metadata fetch: match threshold (0-1)')}}</label>
+      <input type="number" min="0" max="1" step="0.01" class="form-control" id="config_metadata_threshold" name="config_metadata_threshold" value="{{ config.config_metadata_threshold }}" required>
+      <p class="help-block">{{_('Books whose best match scores below this value are left for review instead of being filled in.')}}</p>
+    </div>
     <div class="form-group">
       <input type="checkbox" id="config_allow_reverse_proxy_header_login" name="config_allow_reverse_proxy_header_login" data-control="reverse-proxy-login-settings" {% if config.config_allow_reverse_proxy_header_login %}checked{% endif %}>
       <label for="config_allow_reverse_proxy_header_login">{{_('Allow Reverse Proxy Authentication')}}</label>

@@ -126,7 +126,14 @@ $(function () {
                         checked = "checked";
                     }
                     var $provider_button = '<input type="checkbox" id="show-' + provider.name + '" class="pill" data-initial="' + provider.initial + '" data-control="' + provider.id + '" ' + checked + '><label for="show-' + provider.name + '">' + provider.name + ' <span class="glyphicon glyphicon-ok"></span></label>'
-                    $("#metadata_provider").append($provider_button);
+                    var $provider = $($provider_button);
+                    if (provider.configured === false) {
+                        // F8: no API key yet -> shown but cannot be switched on (the server skips it too)
+                        $provider.filter("input").prop({checked: false, disabled: true});
+                        $provider.filter("label").attr("title", msg.provider_no_key)
+                            .css("opacity", 0.5).append($("<small>").text(" (" + msg.provider_no_key + ")"));
+                    }
+                    $("#metadata_provider").append($provider);
                 });
             },
         });

@@ -20,7 +20,7 @@ import os
 import sys
 import json
 
-from sqlalchemy import Column, String, Integer, SmallInteger, Boolean, BLOB, JSON
+from sqlalchemy import Column, String, Integer, SmallInteger, Boolean, BLOB, JSON, Float
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.sql.expression import text
 from sqlalchemy import exists
@@ -119,6 +119,11 @@ class _Settings(_Base):
     config_use_goodreads = Column(Boolean, default=False)
     config_goodreads_api_key = Column(String)
     config_googlebooks_api_key = Column(String, default='')
+    # F8: domestic metadata providers. Keys end in "_e" so they are stored encrypted.
+    config_kakao_api_key_e = Column(String, default='')
+    config_nlgo_api_key_e = Column(String, default='')
+    config_metadata_timeout = Column(Integer, default=5)        # seconds per provider request
+    config_metadata_threshold = Column(Float, default=0.85)     # F6 bulk fetch: apply at or above
     config_register_email = Column(Boolean, default=False)
     config_login_type = Column(Integer, default=0)
 

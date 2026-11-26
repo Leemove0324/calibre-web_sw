@@ -17,8 +17,8 @@
 #  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 # Kakao 책 검색 API 문서: https://developers.kakao.com/docs/latest/ko/daum-search/dev-guide
-# 개발자 사이트에서 발급받은 REST API 키는 코드에 적지 않고 환경 변수로만 읽는다.
-import os
+# 개발자 사이트에서 발급받은 REST API 키는 코드에 적지 않는다.
+# F8: 관리자 설정(app.db에 암호화 저장)에서 먼저 읽고, 없으면 환경 변수를 읽는다.
 from datetime import datetime
 from typing import Dict, List, Optional
 
@@ -26,6 +26,7 @@ import requests
 
 from cps import logger
 from cps.isoLanguages import get_lang3, get_language_name
+from cps.services import metadata_settings
 from cps.services.Metadata import MetaRecord, MetaSourceInfo, Metadata
 
 log = logger.create()
@@ -37,9 +38,12 @@ class Kakao(Metadata):
     DESCRIPTION = "Kakao Books"
     META_URL = "https://developers.kakao.com/"
     SEARCH_URL = "https://dapi.kakao.com/v3/search/book"
-    API_KEY_ENV = "KAKAO_REST_API_KEY"  # 환경 변수 이름
-    TIMEOUT = 5  # 카카오가 응답하지 않을 때 무한정 기다리지 않도록 (초)
+    API_KEY_ENV = "KAKAO_REST_API_KEY"  # 관리자 설정에 키가 없을 때 읽는 환경 변수
     PAGE_SIZE = 10  # 한 번에 가져올 책 수
+
+    def is_configured(self) -> bool:
+        # F8: 키가 있어야 쓸 수 있다. 검색·목록 때마다 확인하므로 재시작이 필요 없다.
+        return bool(metadata_settings.api_key(self.__id__))
 
     def search(
         self, query: str, generic_cover: str = "", locale: str = "en"
@@ -48,9 +52,9 @@ class Kakao(Metadata):
         if not self.active:
             return val
 
-        api_key = os.environ.get(Kakao.API_KEY_ENV, "")
+        api_key = metadata_settings.api_key(self.__id__)
         if not api_key:
-            log.warning("Kakao: 환경 변수 %s 가 설정되지 않았습니다.", Kakao.API_KEY_ENV)
+            log.warning("Kakao: API 키가 없습니다 (관리자 설정 또는 환경 변수 %s).", Kakao.API_KEY_ENV)
             return val
 
         query = query.strip()
@@ -68,7 +72,7 @@ class Kakao(Metadata):
                 Kakao.SEARCH_URL,
                 params=params,
                 headers={"Authorization": "KakaoAK " + api_key},
-                timeout=Kakao.TIMEOUT,
+                timeout=metadata_settings.timeout(),  # F8: 관리자 설정의 시간 제한
             )
             results.raise_for_status()
             # JSON이 아닌 응답(오류 페이지 등)도 여기서 잡아 다른 제공처에 영향을 주지 않는다.

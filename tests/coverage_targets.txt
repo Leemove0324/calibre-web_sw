@@ -7,3 +7,4 @@ cps/tasks/metadata_fetch.py      # F6
 cps/services/metadata_history.py # F7
 cps/services/query_analyzer.py   # F2
 cps/services/book_search.py      # F3
+cps/services/metadata_settings.py  # F8

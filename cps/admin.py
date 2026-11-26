@@ -249,10 +249,15 @@ def db_configuration():
 @user_login_required
 @admin_required
 def configuration():
+    from .services import metadata_settings
+    metadata_keys = {provider_id: {"source": metadata_settings.key_source(provider_id),
+                                   "env": metadata_settings.env_name(provider_id)}
+                     for provider_id in metadata_settings.KEY_SOURCES}
     return render_title_template("config_edit.html",
                                  config=config,
                                  provider=oauthblueprints,
                                  feature_support=feature_support,
+                                 metadata_keys=metadata_keys,
                                  title=_("Basic Configuration"), page="config")
 
 
@@ -1124,6 +1129,47 @@ def _config_string(to_save, x):
     return config.set_from_dictionary(to_save, x, lambda y: strip_whitespaces(y) if y else y)
 
 
+METADATA_KEY_FIELDS = ("config_kakao_api_key_e", "config_nlgo_api_key_e")
+METADATA_TIMEOUT_RANGE = (1, 60)
+
+
+def _configuration_metadata_helper(to_save):
+    """F8: provider keys, request timeout and bulk fetch threshold. Returns an error message or None.
+
+    A key field left empty keeps the saved key (the form never shows it again);
+    the "<field>_delete" checkbox removes it.
+    """
+    timeout = to_save.get("config_metadata_timeout")
+    if timeout is not None:
+        try:
+            timeout = int(timeout)
+        except ValueError:
+            timeout = 0
+        low, high = METADATA_TIMEOUT_RANGE
+        if not low <= timeout <= high:
+            return _('Metadata provider timeout has to be between %(low)s and %(high)s seconds',
+                     low=low, high=high)
+    threshold = to_save.get("config_metadata_threshold")
+    if threshold is not None:
+        try:
+            threshold = float(threshold)
+        except ValueError:
+            threshold = -1.0
+        if not 0.0 <= threshold <= 1.0:
+            return _('Match threshold has to be between 0 and 1')
+
+    for field in METADATA_KEY_FIELDS:
+        if to_save.get(field + "_delete") == "on":
+            config.set_from_dictionary({field: ""}, field)
+        elif to_save.get(field, ""):
+            _config_string(to_save, field)
+    if timeout is not None:
+        config.set_from_dictionary({"config_metadata_timeout": timeout}, "config_metadata_timeout")
+    if threshold is not None:
+        config.set_from_dictionary({"config_metadata_threshold": threshold}, "config_metadata_threshold")
+    return None
+
+
 def _validate_reverse_proxy_trusted_ips(value):
     normalized_values = []
     for entry in value.split(","):
@@ -1876,6 +1922,12 @@ def _configuration_update_helper():
 
         # Google Books API configuration
         reboot_required |=_config_string(to_save, "config_googlebooks_api_key")
+
+        # F8: domestic metadata providers. Read by the providers on every search,
+        # so none of these needs a restart.
+        error = _configuration_metadata_helper(to_save)
+        if error:
+            return _configuration_result(error)
         
         _config_int(to_save, "config_updatechannel")
 

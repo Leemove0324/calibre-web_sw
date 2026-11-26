@@ -3894,3 +3894,59 @@ msgstr "선택한 서재 Kobo 동기화"
 msgid "Show Read/Unread Section"
 msgstr "읽음/읽지 않음 표시"
 
+
+#: cps/admin.py:1150
+#, python-format
+msgid "Metadata provider timeout has to be between %(low)s and %(high)s seconds"
+msgstr "메타데이터 제공처 시간 제한은 %(low)s~%(high)s초 사이여야 합니다"
+
+#: cps/admin.py:1159
+msgid "Match threshold has to be between 0 and 1"
+msgstr "자동 적용 기준값은 0에서 1 사이여야 합니다"
+
+#: cps/templates/config_edit.html:175
+msgid "A key is saved. Leave empty to keep it."
+msgstr "저장된 키가 있습니다. 비워 두면 그대로 유지합니다."
+
+#: cps/templates/config_edit.html:177
+msgid "Using the key saved here."
+msgstr "여기에 저장된 키를 사용 중입니다."
+
+#: cps/templates/config_edit.html:178
+#, python-format
+msgid "Using the environment variable %(name)s."
+msgstr "환경 변수 %(name)s 의 키를 사용 중입니다."
+
+#: cps/templates/config_edit.html:179
+msgid "No key. This provider stays off until a key is saved."
+msgstr "키가 없습니다. 키를 저장할 때까지 이 제공처는 꺼져 있습니다."
+
+#: cps/templates/config_edit.html:183
+msgid "Remove the saved key"
+msgstr "저장된 키 삭제"
+
+#: cps/templates/config_edit.html:187
+msgid "Kakao Books REST API Key"
+msgstr "카카오 책 검색 REST API 키"
+
+#: cps/templates/config_edit.html:188
+msgid "National Library of Korea API Key"
+msgstr "국립중앙도서관 API 인증키"
+
+#: cps/templates/config_edit.html:190
+msgid "Metadata provider timeout (seconds)"
+msgstr "메타데이터 제공처 시간 제한 (초)"
+
+#: cps/templates/config_edit.html:194
+msgid "Bulk metadata fetch: match threshold (0-1)"
+msgstr "일괄 정보 가져오기: 자동 적용 기준값 (0~1)"
+
+#: cps/templates/config_edit.html:196
+msgid ""
+"Books whose best match scores below this value are left for review "
+"instead of being filled in."
+msgstr "가장 잘 맞는 결과의 점수가 이 값보다 낮은 책은 채우지 않고 검토 대기로 남깁니다."
+
+#: cps/templates/book_edit.html:299
+msgid "API key needed in admin settings"
+msgstr "관리자 설정에서 API 키 필요"
