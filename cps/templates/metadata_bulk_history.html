@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+{# F7 (#9): bulk metadata fetches that changed something, newest first #}
+{% block body %}
+<div class="discover" id="metadata_bulk_history">
+  <h2>{{_('Metadata fetch history')}}</h2>
+  {% if tasks %}
+  <table class="table table-striped" id="bulk_history">
+    <thead>
+      <tr>
+        <th>{{_('Date')}} (UTC)</th>
+        {% if current_user.role_admin() %}<th>{{_('User')}}</th>{% endif %}
+        <th>{{_('Books')}}</th>
+        <th>{{_('Changes')}}</th>
+        <th>{{_('Undone')}}</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for task in tasks %}
+      <tr data-task-id="{{ task.task_id }}">
+        <td>{{ task.applied_at.strftime('%Y-%m-%d %H:%M') if task.applied_at else '' }}</td>
+        {% if current_user.role_admin() %}<td>{{ task.user_name }}</td>{% endif %}
+        <td>{{ task.books }}</td>
+        <td>{{ task.changes }}</td>
+        <td>{{ task.reverted }}</td>
+        <td><a href="{{ url_for('metadata.metadata_bulk_view', task_id=task.task_id) }}">{{_('Details')}}</a></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p id="bulk_history_empty">{{_('No metadata fetch has changed anything yet.')}}</p>
+  {% endif %}
+</div>
+{% endblock %}

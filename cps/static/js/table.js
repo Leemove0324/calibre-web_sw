@@ -227,7 +227,8 @@ $(function() {
                 $(".navbar").after('<div class="row-fluid text-center">' +
                     '<div id="flash_success" class="alert alert-success">' +
                     'Fetching metadata for ' + data.books + ' books. ' +
-                    '<a href="' + getPath() + '/tasks">See progress</a></div></div>');
+                    '<a href="' + getPath() + '/metadata/bulk/' + encodeURIComponent(data.task_id) + '/view">See results</a>' +
+                    ' &middot; <a href="' + getPath() + '/tasks">Tasks</a></div></div>');
                 $("#books-table").bootstrapTable("uncheckAll");
             },
             error: function error(xhr) {

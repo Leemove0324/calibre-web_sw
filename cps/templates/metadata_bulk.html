@@ -1,0 +1,129 @@
+{% extends "layout.html" %}
+{# F7 (#9): per-book results of one bulk metadata fetch, what it changed, and undo #}
+{% block body %}
+<div class="discover" id="metadata_bulk" data-task-id="{{ task_id }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <h2>{{_('Metadata fetch results')}}</h2>
+  <p>
+    <a href="{{ url_for('metadata.metadata_bulk_history') }}">{{_('All metadata fetches')}}</a>
+    &middot; <a href="{{ url_for('tasks.get_tasks_status') }}">{{_('Tasks')}}</a>
+  </p>
+  {% if running %}
+  <div class="alert alert-info" id="bulk_running">{{_('This task is still running. Reload the page to see more results.')}}</div>
+  {% endif %}
+  {% if counts %}
+  <p id="bulk_counts">
+    <span class="label label-success">{{_('Applied')}}: {{ counts['applied'] }}</span>
+    <span class="label label-warning">{{_('Pending review')}}: {{ counts['pending'] }}</span>
+    <span class="label label-default">{{_('Unchanged')}}: {{ counts['unchanged'] }}</span>
+    <span class="label label-default">{{_('No match')}}: {{ counts['no_match'] }}</span>
+    <span class="label label-danger">{{_('Failed')}}: {{ counts['failed'] }}</span>
+  </p>
+  {% elif books %}
+  <p class="text-muted" id="bulk_only_history">{{_('Only the changes are shown: the full per-book results are kept until the server restarts.')}}</p>
+  {% endif %}
+
+  {% if can_undo %}
+  <p>
+    <button type="button" class="btn btn-danger" id="bulk_revert" data-toggle="modal" data-target="#revertBulkModal">{{_('Undo all changes of this task')}}</button>
+  </p>
+  {% endif %}
+  <div id="bulk_revert_result"></div>
+
+  {% if books %}
+  <table class="table table-striped" id="bulk_results">
+    <thead>
+      <tr>
+        <th>{{_('Book')}}</th>
+        <th>{{_('Result')}}</th>
+        <th>{{_('Score')}}</th>
+        <th>{{_('Source')}}</th>
+        <th>{{_('Changes')}}</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for book in books %}
+      <tr data-book-id="{{ book.book_id }}" data-result="{{ book.result }}">
+        <td>{% if book.title %}<a href="{{ url_for('web.show_book', book_id=book.book_id) }}">{{ book.title }}</a>{% else %}#{{ book.book_id }}{% endif %}</td>
+        <td>
+          {% if book.result == 'applied' %}<span class="label label-success">{{_('Applied')}}</span>
+          {% elif book.result == 'pending' %}<span class="label label-warning">{{_('Pending review')}}</span>
+          {% elif book.result == 'unchanged' %}<span class="label label-default">{{_('Unchanged')}}</span>
+          {% elif book.result == 'no_match' %}<span class="label label-default">{{_('No match')}}</span>
+          {% else %}<span class="label label-danger">{{_('Failed')}}</span>{% endif %}
+          {% if book.error %}<div class="text-danger small">{{ book.error }}</div>{% endif %}
+        </td>
+        <td>{% if book.score is not none %}{{ '%.2f' % book.score }}{% endif %}</td>
+        <td>{{ book.source }}</td>
+        <td>
+          {% for change in book.changes %}
+          <div class="bulk-change{% if change.reverted %} text-muted{% endif %}" data-field="{{ change.field }}">
+            <strong>{{ change.field }}</strong>:
+            {% if change.field == 'cover' %}
+              {{_('new cover')}}
+            {% else %}
+              <span class="bulk-old">{{ change.old_value|striptags|truncate(60) if change.old_value else '-' }}</span>
+              &rarr; <span class="bulk-new">{{ change.new_value|striptags|truncate(60) if change.new_value else '-' }}</span>
+            {% endif %}
+            {% if change.reverted %}<span class="label label-default">{{_('Undone')}}</span>{% endif %}
+            {% if change.kept %}<span class="label label-warning bulk-kept">{{_('Edited later, kept')}}</span>{% endif %}
+          </div>
+          {% endfor %}
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p id="bulk_empty">{{_('No results yet.')}}</p>
+  {% endif %}
+</div>
+{% endblock %}
+{% block modal %}
+{% if can_undo %}
+<div class="modal fade" id="revertBulkModal" role="dialog" aria-labelledby="revertBulkLabel">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-center">
+        <span id="revertBulkLabel">{{_('Are you really sure?')}}</span>
+      </div>
+      <div class="modal-body text-center">
+        <p>{{_('Every field this task changed gets its old value back. Fields someone edited after the task are left alone.')}}</p>
+      </div>
+      <div class="modal-footer">
+        <input type="button" class="btn btn-danger" value="{{_('Undo')}}" id="bulk_revert_confirm" data-dismiss="modal">
+        <button type="button" class="btn btn-default" data-dismiss="modal">{{_('Cancel')}}</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
+{% block js %}
+<script>
+$(function() {
+  $("#bulk_revert_confirm").on("click", function() {
+    var taskId = $("#metadata_bulk").data("task-id");
+    $("#bulk_revert").prop("disabled", true);
+    $.ajax({
+      method: "post",
+      dataType: "json",
+      url: getPath() + "/metadata/bulk/" + encodeURIComponent(taskId) + "/revert",
+      success: function(data) {
+        var text = "{{_('Undone')}}: " + data.reverted + ", {{_('left alone (edited later)')}}: " + data.skipped +
+                   ", {{_('book gone')}}: " + data.missing + ", {{_('Failed')}}: " + data.failed;
+        $("#bulk_revert_result").html('<div class="alert alert-success" id="bulk_revert_done"></div>');
+        $("#bulk_revert_done").text(text);
+        setTimeout(function() { location.reload(); }, 1500);
+      },
+      error: function(xhr) {
+        var msg = (xhr.responseJSON && xhr.responseJSON.error) ? xhr.responseJSON.error : "Request failed";
+        $("#bulk_revert_result").html('<div class="alert alert-danger" id="bulk_revert_error"></div>');
+        $("#bulk_revert_error").text(msg);
+        $("#bulk_revert").prop("disabled", false);
+      }
+    });
+  });
+});
+</script>
+{% endblock %}
