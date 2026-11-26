@@ -97,6 +97,8 @@ def trim(record):
     keep["description"] = description[:DESCRIPTION_KEEP]
     keep["description_length"] = len(description)
     keep["source"] = {"id": (record.get("source") or {}).get("id", "")}
+    # F3(#22) 이후 /metadata/search가 붙여 주는 신뢰도 점수. 임계값 조정에 쓴다 (조건 A·B에서는 None)
+    keep["score"] = record.get("score")
     return keep
 
 

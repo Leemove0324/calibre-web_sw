@@ -103,6 +103,15 @@ def test_judge_query_rank_and_accuracy():
     assert (row["compared"], row["correct"], row["wrong_fields"]) == (5, 4, "publisher")
 
 
+def test_score_from_ranked_search_is_kept():
+    """F3(#22)가 /metadata/search 결과에 붙이는 score를 수집·채점 결과에 남긴다 (#18 리뷰 2번)."""
+    ranked = dict(rec(), score=0.93)
+    assert collect.trim(ranked)["score"] == 0.93
+    assert evallib.judge_query(entry([ranked, rec(isbn=None)]), GOLD)["top1_score"] == 0.93
+    assert evallib.judge_query(entry([rec()]), GOLD)["top1_score"] is None
+    assert evallib.judge_query(entry([]), GOLD)["top1_score"] is None
+
+
 def test_judge_query_without_results():
     row = evallib.judge_query(entry([]), GOLD)
     assert row["rank"] is None and row["filled"] == 0 and not row["cover"]
@@ -169,6 +178,7 @@ def test_collect_run_records_results_errors_and_covers():
     assert entries[0]["status"] == "ok" and entries[0]["sources"] == ["kakao"]
     assert len(entries[0]["results"][0]["description"]) == collect.DESCRIPTION_KEEP
     assert entries[0]["results"][0]["description_length"] == 1000
+    assert entries[0]["results"][0]["score"] is None   # F3 이전 서버: 점수 없음
     assert entries[0]["cover_ok"] is True
     assert entries[1]["results"] == [] and "cover_ok" not in entries[1]
     assert entries[2]["status"] == "error" and "timeout" in entries[2]["error"]

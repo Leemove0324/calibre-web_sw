@@ -172,6 +172,7 @@ def judge_query(entry, gold):
         "top1": bool(rank == 1),
         "top5": bool(rank and rank <= TOP_K),
         "top1_source": ((results[0].get("source") or {}).get("id", "") if results else ""),
+        "top1_score": (results[0].get("score") if results else None),  # F3 점수 (없으면 None)
         "filled": 0,
         "filled_fields": "",
         "compared": 0,

@@ -24,7 +24,7 @@ EVAL_DIR = os.path.join(REPO_DIR, "eval")
 SUMMARY_FIELDS = ["raw_file", "condition", "set", "providers", "started_at", "queries", "errors",
                   "unscored", "M1", "M2", "M3", "M4", "M5", "M6", "weak_matches", "cover_checked"]
 ROW_FIELDS = ["id", "query", "status", "elapsed_s", "result_count", "rank", "match", "top1", "top5",
-              "top1_source", "filled", "filled_fields", "compared", "correct", "wrong_fields", "cover"]
+              "top1_source", "top1_score", "filled", "filled_fields", "compared", "correct", "wrong_fields", "cover"]
 
 
 def read_gold(path):
