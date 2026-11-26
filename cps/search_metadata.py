@@ -33,12 +33,12 @@ from sqlalchemy.orm.attributes import flag_modified
 from cps.services.Metadata import Metadata
 from cps.services import metadata_history
 from cps.services.worker import WorkerThread, STAT_WAITING, STAT_STARTED
+from cps.services.book_search import rank_records  # F3: 결과 통합·순위화
 from cps.tasks.metadata_fetch import TaskFetchMetadata
 from . import calibre_db, constants, logger, ub, web_server
 from .render_template import render_title_template
 from .usermanagement import user_login_required
-# F2·F3: 검색어 정리와 결과 통합·순위화
-from cps.services.book_search import rank_records
+# F2: 검색어 정리
 from cps.services.query_analyzer import analyze_query
 
 
