@@ -568,12 +568,35 @@ class Thumbnail(Base):
     expiration = Column(DateTime, nullable=True)
 
 
+class MetadataFetchHistory(Base):
+    """F7 (#9): one changed field of one book in a bulk metadata fetch (project plan, table 24).
+
+    The row is written BEFORE the value is applied to metadata.db, so no change is ever
+    made without a record. A cover's old_value is the path of its backup file ('' = no cover).
+    """
+    __tablename__ = 'metadata_fetch_history'
+
+    id = Column(Integer, primary_key=True)
+    task_id = Column(String, index=True)
+    user_id = Column(Integer)
+    book_id = Column(Integer)
+    field = Column(String)
+    old_value = Column(String)
+    new_value = Column(String)
+    source = Column(String)
+    score = Column(Float)
+    applied_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    reverted = Column(Boolean, default=False)
+
+
 # Add missing tables during migration of database
 def add_missing_tables(engine, _session):
     if not engine.dialect.has_table(engine.connect(), "archived_book"):
         ArchivedBook.__table__.create(bind=engine)
     if not engine.dialect.has_table(engine.connect(), "thumbnail"):
         Thumbnail.__table__.create(bind=engine)
+    if not engine.dialect.has_table(engine.connect(), "metadata_fetch_history"):
+        MetadataFetchHistory.__table__.create(bind=engine)
 
 
 # migrate all settings missing in registration table

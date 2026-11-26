@@ -39,7 +39,7 @@ pip install --force-reinstall --no-deps python-magic-bin
 | `replay` | `replay("kakao", "소년이 온다")` → 이후 `requests.get`/`Session.get`이 녹화 응답을 돌려줌. 요청 기록 리스트를 반환 |
 | `app` | 라우트까지 등록된 Flask 앱 (서버는 안 띄움) |
 | `calibre_library` | 한국 책 6권이 든 임시 서재를 앱에 연결 (테스트마다 새로). `{"path", "books": {제목: id}}` |
-| `calibre_session` | 그 서재의 metadata.db 세션 |
+| `calibre_session` | 그 서재의 metadata.db 세션. Calibre SQL 함수(`title_sort` 등)가 등록돼 있어 책을 고치고 commit할 수 있음 |
 | `client` / `admin_client` | 로그인 안 한 / 관리자(admin)로 로그인한 테스트 클라이언트 |
 
 예외를 흉내 낼 때는 `helpers.patch_requests(monkeypatch, requests.Timeout("느림"))`을 쓴다.

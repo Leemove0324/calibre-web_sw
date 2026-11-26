@@ -31,9 +31,11 @@ from sqlalchemy.exc import InvalidRequestError, OperationalError
 from sqlalchemy.orm.attributes import flag_modified
 
 from cps.services.Metadata import Metadata
-from cps.services.worker import WorkerThread
+from cps.services import metadata_history
+from cps.services.worker import WorkerThread, STAT_WAITING, STAT_STARTED
 from cps.tasks.metadata_fetch import TaskFetchMetadata
-from . import constants, logger, ub, web_server
+from . import calibre_db, constants, logger, ub, web_server
+from .render_template import render_title_template
 from .usermanagement import user_login_required
 # F2·F3: 검색어 정리와 결과 통합·순위화
 from cps.services.book_search import rank_records
@@ -207,7 +209,8 @@ def metadata_bulk_fetch():
     # same provider on/off choice as /metadata/search (the user's metadata view settings)
     active = current_user.view_settings.get("metadata", {})
     provider_ids = [c.__id__ for c in cl if active.get(c.__id__, True)]
-    task = TaskFetchMetadata(book_ids, current_user.id, provider_ids=provider_ids)
+    task = TaskFetchMetadata(book_ids, current_user.id, provider_ids=provider_ids,
+                             recorder_factory=metadata_history.make_recorder_factory())  # F7: history
     WorkerThread.add(current_user.name, task)
     return make_response(jsonify(task_id=str(task.id), books=len(task.book_ids)), 202)
 
@@ -224,3 +227,86 @@ def metadata_bulk_status(task_id):
         return make_response(jsonify(task_id=str(task.id), status=task.stat, progress=task.progress,
                                      counts=task.counts(), results=task.results))
     abort(404)
+
+
+# F7 (#9): per-book results of a bulk fetch, its change history, and undo
+
+def _find_bulk_task(task_id):
+    """(task, user name) of a bulk fetch still known to the worker, else (None, None)."""
+    for queued in WorkerThread.get_instance().tasks:
+        if str(queued.task.id) == task_id and isinstance(queued.task, TaskFetchMetadata):
+            return queued.task, queued.user
+    return None, None
+
+
+def _check_bulk_access(task_id):
+    """Returns the in-memory task (or None); aborts with 404/403 like the status route."""
+    task, user_name = _find_bulk_task(task_id)
+    owner_id = metadata_history.task_owner(task_id)
+    if task is None and owner_id is None:
+        abort(404)
+    if current_user.role_admin():
+        return task
+    if task is not None and user_name == current_user.name:
+        return task
+    if task is None and owner_id == current_user.id:
+        return task
+    abort(403)
+
+
+@meta.route("/metadata/bulk/<task_id>/view", methods=["GET"])
+@user_login_required
+def metadata_bulk_view(task_id):
+    task = _check_bulk_access(task_id)
+    rows = metadata_history.task_history(task_id)
+    books = {}
+    for entry in (task.results if task is not None else []):
+        books[entry["book_id"]] = {"book_id": entry["book_id"], "title": entry.get("title", ""),
+                                   "result": entry["result"], "score": entry.get("score"),
+                                   "source": entry.get("source", ""), "error": entry.get("error", ""),
+                                   "changes": []}
+    undoable = 0
+    found_books = {}
+    for row in rows:
+        if row.book_id not in found_books:
+            found_books[row.book_id] = calibre_db.get_book(row.book_id)
+        found = found_books[row.book_id]
+        book = books.get(row.book_id)
+        if book is None:
+            book = books[row.book_id] = {"book_id": row.book_id, "title": found.title if found else "",
+                                         "result": "applied", "score": row.score, "source": row.source,
+                                         "error": "", "changes": []}
+        # kept: changed again after the task, so an undo leaves it alone
+        kept = not row.reverted and found is not None and metadata_history.changed_since(row, found)
+        undoable += 1 if not row.reverted and not kept else 0
+        book["changes"].append({"field": row.field, "old_value": row.old_value, "new_value": row.new_value,
+                                "reverted": row.reverted, "kept": kept})
+    running = task is not None and task.stat in (STAT_WAITING, STAT_STARTED)
+    can_undo = undoable > 0 and not running and (current_user.role_edit() or current_user.role_admin())
+    return render_title_template("metadata_bulk.html", title="Metadata fetch results", page="metadata_bulk",
+                                 task_id=task_id, task=task, books=list(books.values()), running=running,
+                                 can_undo=can_undo, counts=task.counts() if task is not None else None)
+
+
+@meta.route("/metadata/bulk/<task_id>/revert", methods=["POST"])
+@user_login_required
+def metadata_bulk_revert(task_id):
+    if not (current_user.role_edit() or current_user.role_admin()):
+        abort(403)
+    task = _check_bulk_access(task_id)
+    if task is not None and task.stat in (STAT_WAITING, STAT_STARTED):
+        return make_response(jsonify(error="The task is still running"), 409)
+    summary = metadata_history.revert_task(task_id, calibre_db)
+    return make_response(jsonify(task_id=task_id, **summary))
+
+
+@meta.route("/metadata/bulk/history", methods=["GET"])
+@user_login_required
+def metadata_bulk_history():
+    """The user's bulk fetches that changed something (admins see everyone's), newest first."""
+    tasks = metadata_history.list_tasks(None if current_user.role_admin() else current_user.id)
+    names = dict(ub.session.query(ub.User.id, ub.User.name).all())
+    for entry in tasks:
+        entry["user_name"] = names.get(entry["user_id"], entry["user_id"])
+    return render_title_template("metadata_bulk_history.html", title="Metadata fetch history",
+                                 page="metadata_bulk_history", tasks=tasks)
