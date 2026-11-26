@@ -41,3 +41,6 @@ gmail.json
 .coverage.*
 coverage.json
 htmlcov/
+
+# F7 (#9): 일괄 가져오기 되돌리기용 표지 백업 (app.db 옆에 생김)
+metadata_history/
