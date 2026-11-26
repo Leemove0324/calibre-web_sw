@@ -142,6 +142,18 @@ def test_calibre_library_has_sample_books(calibre_session, calibre_library):
     assert os.path.isdir(os.path.join(calibre_library["path"], book.path))
 
 
+def test_calibre_session_can_update_books(calibre_session, calibre_library):
+    """books의 트리거가 부르는 title_sort()가 등록돼 있어야 책을 고칠 수 있다 (PR #15 리뷰 1번)."""
+    from cps import db
+    book = calibre_session.get(db.Books, calibre_library["books"]["아몬드"])
+    book.title = "The 아몬드"
+    calibre_session.commit()
+    calibre_session.expire_all()
+    book = calibre_session.get(db.Books, calibre_library["books"]["아몬드"])
+    # 실제 앱의 title_sort: 앞의 관사를 뒤로 보낸다 (config_title_regex)
+    assert book.sort == "아몬드, The"
+
+
 def test_each_test_gets_a_fresh_library(calibre_library):
     assert calibre_library["path"].endswith("library")
     assert os.path.exists(os.path.join(calibre_library["path"], "metadata.db"))
