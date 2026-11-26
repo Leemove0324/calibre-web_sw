@@ -243,12 +243,13 @@
             </span>
           </div>
         </form>
-        <div class="text-center"><strong>{{_('Click the cover to load metadata to the form')}}</strong></div>
+        <div class="text-center"><strong>{{_('Choose a book to compare metadata')}}</strong></div>
       </div>
       <div class="modal-body">
         <div class="text-center padded-bottom" id="metadata_provider">
         </div>
 
+        <div id="metadata-compare" style="display:none" aria-live="polite"></div>
         <div id="meta-info">
           {{_("Loading...")}}
         </div>
@@ -265,12 +266,11 @@
 <script type="text/template" id="template-book-result">
   <li class="media" data-related="<%- source.id %>">
     <img class="pull-left img-responsive"
-         data-toggle="modal"
-         data-target="#metaModal"
          src="<%- cover || '{{ url_for('static', filename='img/academicpaper.svg') }}' %>"
          alt="Cover"
     >
     <div class="media-body">
+      <button type="button" class="btn btn-default metadata-compare-button">{{_("Compare metadata")}}</button>
       <h4 class="media-heading">
         <a class="meta_title" href="<%- url %>" target="_blank" rel="noopener"><%- title %></a>
       </h4>
@@ -289,6 +289,22 @@
 </script>
 <script>
   var i18nMsg = {
+    'title': {{_('Title')|tojson}},
+    'pubdate': {{_('Publishing date')|tojson}},
+    'cover': {{_('Cover')|tojson}},
+    'cover_permission': {{_('Cover preview only. Applying a cover requires uploads to be enabled and upload permission.')|tojson}},
+    'empty_value': {{_('Not set')|tojson}},
+    'cover_unavailable': {{_('Cover unavailable')|tojson}},
+    'compare': {{_('Compare metadata')|tojson}},
+    'apply_hint': {{_('Only checked fields will be applied to the editor. Save the book to persist changes.')|tojson}},
+    'field': {{_('Field')|tojson}},
+    'current': {{_('Current value')|tojson}},
+    'candidate': {{_('Candidate value')|tojson}},
+    'apply': {{_('Apply selected fields')|tojson}},
+    'unavailable': {{_('Unavailable or unsupported')|tojson}},
+    'remove': {{_('Remove')|tojson}},
+    'cancel': {{_('Cancel comparison')|tojson}},
+
     'loading': {{_('Loading...')|safe|tojson}},
     'search_error': {{_('Search error!')|safe|tojson}},
     'no_result': {{_('No Result(s) found! Please try another keyword.')|safe|tojson}},
