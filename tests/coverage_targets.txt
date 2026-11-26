@@ -4,4 +4,5 @@
 cps/metadata_provider/kakao.py   # F1
 cps/metadata_provider/nlgo.py    # F1
 cps/tasks/metadata_fetch.py      # F6
+cps/services/metadata_history.py # F7
 cps/services/metadata_settings.py  # F8

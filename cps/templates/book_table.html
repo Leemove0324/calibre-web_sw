@@ -65,6 +65,9 @@
           <div class="btn btn-default disabled" id="fetch_selected_metadata" aria-disabled="true">
             {{_('Fetch metadata for selected books')}}
           </div>
+          <a class="btn btn-default" id="metadata_fetch_history" href="{{ url_for('metadata.metadata_bulk_history') }}">
+            {{_('Metadata fetch history')}}
+          </a>
         </div>
         <div class="row form-group">
             <div class="btn btn-default disabled" id="table_xchange" ><span class="glyphicon glyphicon-arrow-up"></span><span class="glyphicon glyphicon-arrow-down"></span>{{_('Exchange author and title')}}</div>
