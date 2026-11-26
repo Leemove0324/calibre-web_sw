@@ -33,6 +33,7 @@ from sqlalchemy.orm.attributes import flag_modified
 from cps.services.Metadata import Metadata
 from cps.services import metadata_history
 from cps.services.worker import WorkerThread, STAT_WAITING, STAT_STARTED
+from cps.services.book_search import rank_records  # F3: 결과 통합·순위화
 from cps.tasks.metadata_fetch import TaskFetchMetadata
 from . import calibre_db, constants, logger, ub, web_server
 from .render_template import render_title_template
@@ -176,7 +177,14 @@ def metadata_search():
                 if active.get(c.__id__, True)
             }
             for future in concurrent.futures.as_completed(meta):
-                data.extend(_serialize_metadata_records(future.result()))
+                data.extend(r for r in (future.result() or []) if r)
+        # F3: 같은 ISBN 결과를 합치고 점수 높은 순으로 정렬
+        ranked = rank_records(data, isbn=analysis.isbn13, title=analysis.title)
+        data = []
+        for record, score in ranked:
+            item = _serialize_metadata_records([record])[0]
+            item["score"] = score
+            data.append(item)
     return make_response(jsonify(data))
 
 
