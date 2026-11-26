@@ -22,7 +22,8 @@ import evallib  # noqa: E402
 REPO_DIR = os.path.dirname(os.path.dirname(HERE))
 EVAL_DIR = os.path.join(REPO_DIR, "eval")
 SUMMARY_FIELDS = ["raw_file", "condition", "set", "providers", "started_at", "queries", "errors",
-                  "unscored", "M1", "M2", "M3", "M4", "M5", "M6", "weak_matches", "cover_checked"]
+                  "unscored", "M1", "M2", "M3", "M4", "M5", "M6", "weak_matches", "alt_matches",
+                  "cover_checked"]
 ROW_FIELDS = ["id", "query", "status", "elapsed_s", "result_count", "rank", "match", "top1", "top5",
               "top1_source", "top1_score", "filled", "filled_fields", "compared", "correct", "wrong_fields", "cover"]
 
@@ -133,6 +134,8 @@ def main(argv=None):
         if summary["weak_matches"]:
             print("  ISBN 없이 제목·저자로만 정답 판정한 질의 {}건 (per_query.csv의 match 열)".format(
                 summary["weak_matches"]))
+        if summary["alt_matches"]:
+            print("  같은 책의 다른 판(isbn13_alt)으로 정답 판정한 질의 {}건".format(summary["alt_matches"]))
     update_summary(summaries, args.summary)
     print()
     print(markdown_table(summaries))

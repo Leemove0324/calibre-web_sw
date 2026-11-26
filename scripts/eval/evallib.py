@@ -13,8 +13,9 @@ collect.py가 모은 검색 결과와 정답표(eval/gold.csv)를 받아 질의�
                    (collect.py --check-covers면 실제로 이미지를 받아지는지까지 본다)
   M6 응답 시간      질의별 응답 시간의 95번째 백분위수(p95, 초)
 
-"정답 도서"는 ISBN-13이 정답표와 같은 결과다. 결과에 ISBN이 없을 때만 정규화한 제목이 같고
-저자가 한 명 이상 겹치면 정답으로 본다 (판정 근거는 match 열에 isbn / title_author 로 남긴다).
+"정답 도서"는 ISBN-13이 정답표(isbn13) 또는 같은 책의 다른 판(isbn13_alt)과 같은 결과다.
+결과에 ISBN이 없을 때만 정규화한 제목이 같고 저자가 한 명 이상 겹치면 정답으로 본다
+(판정 근거는 match 열에 isbn / isbn_alt / title_author 로 남긴다).
 """
 import math
 import re
@@ -116,19 +117,37 @@ def filled_fields(record):
 # 정답 판정
 # ---------------------------------------------------------------------------
 
+def alt_isbns(gold):
+    """정답표 isbn13_alt 열(같은 책의 다른 판 ISBN, 공백·쉼표 구분) -> ISBN-13 집합."""
+    parts = re.split(r"[\s,;]+", gold.get("isbn13_alt") or "")
+    return {isbn13(p) for p in parts if isbn13(p)} - {isbn13(gold.get("isbn13"))}
+
+
 def match_kind(record, gold):
-    """record가 정답 도서인지: 'isbn', 'title_author', 또는 ''."""
+    """record가 정답 도서인지: 'isbn', 'isbn_alt', 'title_author', 또는 ''.
+
+    isbn_alt: 정답표가 함께 인정한 같은 책의 다른 판(isbn13_alt)과 ISBN이 같음 (PR #23 리뷰 1번).
+    """
     gold_isbn = isbn13(gold.get("isbn13"))
     found_isbn = record_isbn(record)
     if found_isbn:
-        return "isbn" if gold_isbn and found_isbn == gold_isbn else ""
+        if gold_isbn and found_isbn == gold_isbn:
+            return "isbn"
+        return "isbn_alt" if found_isbn in alt_isbns(gold) else ""
     same_title = normalize_title(record.get("title")) == normalize_title(gold.get("title"))
     shared_author = split_authors(record.get("authors")) & split_authors(gold.get("authors"))
     return "title_author" if same_title and shared_author else ""
 
 
 def field_correct(record, gold, field):
-    """채워진 항목 하나가 정답표와 맞는지 (M4). 정답표가 비어 있으면 None (판정 불가)."""
+    """채워진 항목 하나가 정답표와 맞는지 (M4). 정답표가 비어 있으면 None (판정 불가).
+
+    결과가 다른 판(isbn13_alt)이면 출판사·출간일은 정답표(대표 판)와 다를 수 있으므로
+    비교하지 않는다(None). ISBN은 그 다른 판의 ISBN이면 맞은 것으로 본다.
+    """
+    other_edition = record_isbn(record) in alt_isbns(gold)
+    if field in ("publisher", "pubdate") and other_edition:
+        return None
     if field == "title":
         if not gold.get("title"):
             return None
@@ -148,7 +167,9 @@ def field_correct(record, gold, field):
         return normalize_date(record.get("publishedDate"))[:len(wanted)] == wanted
     if field == "isbn":
         wanted = isbn13(gold.get("isbn13"))
-        return record_isbn(record) == wanted if wanted else None
+        if not wanted:
+            return None
+        return record_isbn(record) == wanted or other_edition
     raise ValueError(field)
 
 
@@ -229,6 +250,7 @@ def summarize(rows):
         "M5": sum(r["cover"] for r in rows) / n if n else None,
         "M6": percentile([r["elapsed_s"] for r in answered], 95),
         "weak_matches": sum(r["match"] == "title_author" for r in rows),
+        "alt_matches": sum(r["match"] == "isbn_alt" for r in rows),
     }
 
 

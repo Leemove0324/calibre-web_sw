@@ -223,3 +223,40 @@ def test_gold_table_matches_samples_and_has_valid_isbns():
     assert [g["id"] for g in gold] == [s["id"] for s in samples]
     bad = [g["id"] for g in gold if g["isbn13"] and evallib.isbn13(g["isbn13"]) != g["isbn13"]]
     assert bad == []
+
+
+# ---------- 같은 책의 다른 판 (isbn13_alt, PR #23 리뷰) ----------
+
+ALT_GOLD = dict(GOLD, isbn13_alt="9788936473235 9780306406157")   # 다른 판 2개
+
+
+def test_alt_edition_counts_as_correct_book():
+    assert evallib.alt_isbns(ALT_GOLD) == {"9788936473235", "9780306406157"}
+    assert evallib.alt_isbns(dict(GOLD, isbn13_alt="")) == set()
+    assert evallib.match_kind(rec(isbn="9788936473235"), ALT_GOLD) == "isbn_alt"
+    assert evallib.match_kind(rec(), ALT_GOLD) == "isbn"
+    assert evallib.match_kind(rec(isbn="9788936434595"), ALT_GOLD) == ""   # 목록에 없는 판은 여전히 오답
+
+
+def test_alt_edition_skips_publisher_and_date_in_m4():
+    other = rec(isbn="9780306406157", publisher="다른출판사", date="2020-01-01")
+    row = evallib.judge_query(entry([other]), ALT_GOLD)
+    assert row["top1"] and row["match"] == "isbn_alt"
+    # 출판사·출간일은 대표 판과 다를 수 있어 비교하지 않고, 제목·저자·ISBN만 비교
+    assert (row["compared"], row["correct"], row["wrong_fields"]) == (3, 3, "")
+
+
+def test_summary_counts_alt_matches():
+    rows = [evallib.judge_query(entry([rec(isbn="9788936473235")]), ALT_GOLD),
+            evallib.judge_query(entry([rec()]), ALT_GOLD)]
+    summary = evallib.summarize(rows)
+    assert summary["M1"] == pytest.approx(1.0) and summary["alt_matches"] == 1
+
+
+def test_gold_alt_isbns_are_valid_and_distinct():
+    with open(os.path.join(helpers.REPO_DIR, "eval", "gold.csv"), encoding="utf-8-sig", newline="") as f:
+        gold = list(csv.DictReader(f))
+    for row in gold:
+        alts = (row.get("isbn13_alt") or "").split()
+        assert all(evallib.isbn13(a) == a for a in alts), row["id"]
+        assert row["isbn13"] not in alts, row["id"]
