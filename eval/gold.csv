@@ -1,71 +1,71 @@
 id,isbn13,title,authors,publisher,pubdate,checker_1,checker_2,evidence,note
-D01,,아버지의 해방일지,정지아,,,,,,
-D02,,쇼코의 미소,최은영,,,,,,
-D03,,지구 끝의 온실,김초엽,,,,,,
-D04,,시선으로부터,정세랑,,,,,,
-D05,,넛지,리처드 탈러 & 캐스 선스타인,,,,,,
-D06,,말의 품격,이기주,,,,,,
-D07,,트렌드 코리아 2024,김난도,,,,,,
-D08,,피로사회,한병철,,,,,,
-D09,,김상욱의 양자 공부,김상욱,,,,,,
-D10,,이것이 취업을 위한 코딩 테스트다 with 파이썬,나동빈,,,,,,
-D11,,엔트로피,제레미 리프킨,,,,,,
-D12,,부분과 전체,베르너 하이젠베르크,,,,,,
-D13,,수상한 아파트,박현숙,,,,,,
-D14,,나쁜 어린이 표,황선미,,,,,,
-D15,,책 먹는 여우,프란치스카 비어만,,,,,,
-D16,,몽실 언니,권정생,,,,,,
-D17,,토지 2,박경리,,,,,,
-D18,,위대한 개츠비,F. 스콧 피츠제럴드,,,,,,
-D19,,노인과 바다,어니스트 헤밍웨이,,,,,,
-D20,,이방인,알베르 카뮈,,,,,,
-T01,,채식주의자,한강,,,,,,
-T02,,소년이 온다,한강,,,,,,
-T03,,82년생 김지영,조남주,,,,,,
-T04,,아몬드,손원평,,,,,,
-T05,,불편한 편의점,김호연,,,,,,
-T06,,달러구트 꿈 백화점,이미예,,,,,,
-T07,,작별하지 않는다,한강,,,,,,
-T08,,하얼빈,김훈,,,,,,
-T09,,파친코 1,이민진,,,,,,
-T10,,나미야 잡화점의 기적,히가시노 게이고,,,,,,
-T11,,미움받을 용기,기시미 이치로 & 고가 후미타케,,,,,,
-T12,,사피엔스,유발 하라리,,,,,,
-T13,,정의란 무엇인가,마이클 샌델,,,,,,
-T14,,총 균 쇠,재레드 다이아몬드,,,,,,
-T15,,역사의 쓸모,최태성,,,,,,
-T16,,지적 대화를 위한 넓고 얕은 지식,채사장,,,,,,
-T17,,공정하다는 착각,마이클 샌델,,,,,,
-T18,,돈의 속성,김승호,,,,,,
-T19,,아주 작은 습관의 힘,제임스 클리어,,,,,,
-T20,,팩트풀니스,한스 로슬링,,,,,,
-T21,,코스모스,칼 세이건,,,,,,
-T22,,이기적 유전자,리처드 도킨스,,,,,,
-T23,,물고기는 존재하지 않는다,룰루 밀러,,,,,,
-T24,,떨림과 울림,김상욱,,,,,,
-T25,,랩 걸,호프 자런,,,,,,
-T26,,클린 코드,로버트 C. 마틴,,,,,,
-T27,,혼자 공부하는 파이썬,윤인성,,,,,,
-T28,,Do it! 점프 투 파이썬,박응용,,,,,,
-T29,,이것이 자바다,신용권,,,,,,
-T30,,모던 자바스크립트 Deep Dive,이웅모,,,,,,
-T31,,마당을 나온 암탉,황선미,,,,,,
-T32,,긴긴밤,루리,,,,,,
-T33,,구름빵,백희나,,,,,,
-T34,,알사탕,백희나,,,,,,
-T35,,완득이,김려령,,,,,,
-T36,,우아한 거짓말,김려령,,,,,,
-T37,,시간을 파는 상점,김선영,,,,,,
-T38,,푸른 사자 와니니,이현,,,,,,
-T39,,강아지똥,권정생,,,,,,
-T40,,해리 포터와 마법사의 돌 1,J.K. 롤링,,,,,,
-T41,,토지 1,박경리,,,,,,
-T42,,태백산맥 1,조정래,,,,,,
-T43,,데미안,헤르만 헤세,,,,,,
-T44,,어린 왕자,앙투안 드 생텍쥐페리,,,,,,
-T45,,1984,조지 오웰,,,,,,
-T46,,칼의 노래,김훈,,,,,,
-T47,,채식주의자,한강,,,,,,
-T48,,총 균 쇠,재레드 다이아몬드,,,,,,
-T49,,미움받을 용기,기시미 이치로 & 고가 후미타케,,,,,,
-T50,,나의 라임 오렌지나무,J.M. 바스콘셀로스,,,,,,
+D01,9788936438838,아버지의 해방일지,정지아,창비,2022-09-02,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%EC%95%84%EB%B2%84%EC%A7%80%EC%9D%98%20%ED%95%B4%EB%B0%A9%EC%9D%BC%EC%A7%80%20%EC%A0%95%EC%A7%80%EC%95%84&target=total,
+D02,9788954641630,쇼코의 미소,최은영,문학동네,2019-06-20,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%EC%87%BC%EC%BD%94%EC%9D%98%20%EB%AF%B8%EC%86%8C%20%EC%B5%9C%EC%9D%80%EC%98%81&target=total,
+D03,9791191824001,지구 끝의 온실,김초엽,자이언트북스,2021-08-18,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%EC%A7%80%EA%B5%AC%20%EB%81%9D%EC%9D%98%20%EC%98%A8%EC%8B%A4%20%EA%B9%80%EC%B4%88%EC%97%BD&target=total,
+D04,9788954672214,"시선으로부터,",정세랑,문학동네,2020-06-05,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%EC%8B%9C%EC%84%A0%EC%9C%BC%EB%A1%9C%EB%B6%80%ED%84%B0%20%EC%A0%95%EC%84%B8%EB%9E%91&target=total,교보 표기 제목에 쉼표 포함; 큰글자책 제외
+D05,9788901260679,넛지(파이널 에디션),리처드 탈러 & 캐스 선스타인,리더스북,2022-06-20,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%EB%84%9B%EC%A7%80%20%EB%A6%AC%EC%B2%98%EB%93%9C%20%ED%83%88%EB%9F%AC&target=total,"현재 일반판; 구판 넛지(2018, 9788901227542)·교보 단독 한정판 제외"
+D06,9788997092772,말의 품격,이기주,황소북스,2017-05-29,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%EB%A7%90%EC%9D%98%20%ED%92%88%EA%B2%A9%20%EC%9D%B4%EA%B8%B0%EC%A3%BC&target=total,교보에 7주년 기념 플라워 에디션 표기로만 검색됨
+D07,9788959897179,트렌드 코리아 2024,김난도,미래의창,2023-10-12,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%ED%8A%B8%EB%A0%8C%EB%93%9C%20%EC%BD%94%EB%A6%AC%EC%95%84%202024%20%EA%B9%80%EB%82%9C%EB%8F%84&target=total,
+D08,9788932022888,피로사회,한병철,문학과지성사,2012-03-05,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%ED%94%BC%EB%A1%9C%EC%82%AC%ED%9A%8C%20%ED%95%9C%EB%B3%91%EC%B2%A0&target=total,
+D09,9788983718914,김상욱의 양자 공부,김상욱,사이언스북스,2017-12-08,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%EA%B9%80%EC%83%81%EC%9A%B1%EC%9D%98%20%EC%96%91%EC%9E%90%20%EA%B3%B5%EB%B6%80%20%EA%B9%80%EC%83%81%EC%9A%B1&target=total,
+D10,9791162243077,이것이 취업을 위한 코딩 테스트다 with 파이썬,나동빈,한빛미디어,2020-08-05,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%EC%9D%B4%EA%B2%83%EC%9D%B4%20%EC%B7%A8%EC%97%85%EC%9D%84%20%EC%9C%84%ED%95%9C%20%EC%BD%94%EB%94%A9%20%ED%85%8C%EC%8A%A4%ED%8A%B8%EB%8B%A4%20with%20%ED%8C%8C%EC%9D%B4%EC%8D%AC%20%EB%82%98%EB%8F%99%EB%B9%88&target=total,
+D11,9791163730279,엔트로피,제레미 리프킨,세종연구원,2026-08-31,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%EC%97%94%ED%8A%B8%EB%A1%9C%ED%94%BC%20%EC%A0%9C%EB%A0%88%EB%AF%B8%20%EB%A6%AC%ED%94%84%ED%82%A8&target=total,2026 신판 선택; 2015판(9788986698824) 있음
+D12,9791187295686,부분과 전체,베르너 하이젠베르크,서커스,2023-06-15,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%EB%B6%80%EB%B6%84%EA%B3%BC%20%EC%A0%84%EC%B2%B4%20%EB%B2%A0%EB%A5%B4%EB%84%88%20%ED%95%98%EC%9D%B4%EC%A0%A0%EB%B2%A0%EB%A5%B4%ED%81%AC&target=total,"판 여러 개(2016·2020·2023, 지식산업사 2015); 최신판 선택"
+D13,9788963191010,수상한 아파트,박현숙,북멘토,2014-04-21,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%EC%88%98%EC%83%81%ED%95%9C%20%EC%95%84%ED%8C%8C%ED%8A%B8%20%EB%B0%95%ED%98%84%EC%88%99&target=total,
+D14,9791171253180,나쁜 어린이 표,황선미,시공주니어,2024-02-05,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%EB%82%98%EC%81%9C%20%EC%96%B4%EB%A6%B0%EC%9D%B4%20%ED%91%9C%20%ED%99%A9%EC%84%A0%EB%AF%B8&target=total,"출판사 변경본 여러 개(이마주 2017, 웅진주니어 2007); 최신판 선택"
+D15,9788934908067,책 먹는 여우,프란치스카 비어만,주니어김영사,2018-05-10,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%EC%B1%85%20%EB%A8%B9%EB%8A%94%20%EC%97%AC%EC%9A%B0%20%ED%94%84%EB%9E%80%EC%B9%98%EC%8A%A4%EC%B9%B4%20%EB%B9%84%EC%96%B4%EB%A7%8C&target=total,25주년 기념판(2026) 제외
+D16,9788936433895,몽실 언니,권정생,창비,2012-04-25,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%EB%AA%BD%EC%8B%A4%20%EC%96%B8%EB%8B%88%20%EA%B6%8C%EC%A0%95%EC%83%9D&target=total,같은 날 2종(9788936433901) 있음; 첫 결과 선택
+D17,9791130699479,토지 2,박경리,다산책방,2023-06-07,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%ED%86%A0%EC%A7%80%202%20%EB%B0%95%EA%B2%BD%EB%A6%AC&target=total,교보 표기: 토지 2(1부 2권)
+D18,9788937460753,위대한 개츠비,F. 스콧 피츠제럴드,민음사,2009-01-20,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%EC%9C%84%EB%8C%80%ED%95%9C%20%EA%B0%9C%EC%B8%A0%EB%B9%84%20F.%20%EC%8A%A4%EC%BD%A7%20%ED%94%BC%EC%B8%A0%EC%A0%9C%EB%9F%B4%EB%93%9C&target=total,번역판 다수; 민음사 세계문학전집판
+D19,9788937462788,노인과 바다,어니스트 헤밍웨이,민음사,2012-01-02,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%EB%85%B8%EC%9D%B8%EA%B3%BC%20%EB%B0%94%EB%8B%A4%20%EC%96%B4%EB%8B%88%EC%8A%A4%ED%8A%B8%20%ED%97%A4%EB%B0%8D%EC%9B%A8%EC%9D%B4&target=total,번역판 다수; 민음사판
+D20,9788937443848,이방인,알베르 카뮈,민음사,2019-09-02,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%EC%9D%B4%EB%B0%A9%EC%9D%B8%20%EC%95%8C%EB%B2%A0%EB%A5%B4%20%EC%B9%B4%EB%AE%88&target=total,번역판 다수; 민음사판
+T01,9788936434595,채식주의자,한강,창비,2022-03-28,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%EC%B1%84%EC%8B%9D%EC%A3%BC%EC%9D%98%EC%9E%90%20%ED%95%9C%EA%B0%95&target=total,큰글자도서 제외
+T02,9788936434120,소년이 온다,한강,창비,2014-05-19,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%EC%86%8C%EB%85%84%EC%9D%B4%20%EC%98%A8%EB%8B%A4%20%ED%95%9C%EA%B0%95&target=total,큰글자도서 제외
+T03,9788937473135,82년생 김지영,조남주,민음사,2016-10-14,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=82%EB%85%84%EC%83%9D%20%EA%B9%80%EC%A7%80%EC%98%81%20%EC%A1%B0%EB%82%A8%EC%A3%BC&target=total,워터프루프북·코멘터리 에디션 제외
+T04,9791198363510,아몬드,손원평,다즐링,2023-07-14,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%EC%95%84%EB%AA%AC%EB%93%9C%20%EC%86%90%EC%9B%90%ED%8F%89&target=total,청소년판(9791198363503) 제외; 창비 구판 있음
+T05,9791161571188,불편한 편의점,김호연,나무옆의자,2021-04-20,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%EB%B6%88%ED%8E%B8%ED%95%9C%20%ED%8E%B8%EC%9D%98%EC%A0%90%20%EA%B9%80%ED%98%B8%EC%97%B0&target=total,교보에 벚꽃 에디션 표기로 검색됨; 큰글자도서 제외
+T06,9791165341909,달러구트 꿈 백화점,이미예,팩토리나인,2020-07-08,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%EB%8B%AC%EB%9F%AC%EA%B5%AC%ED%8A%B8%20%EA%BF%88%20%EB%B0%B1%ED%99%94%EC%A0%90%20%EC%9D%B4%EB%AF%B8%EC%98%88&target=total,표본 제목에 권 번호 없음 -> 1권으로 정함(교보 표기: 달러구트 꿈 백화점 1)
+T07,9788954682152,작별하지 않는다,한강,문학동네,2021-09-09,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%EC%9E%91%EB%B3%84%ED%95%98%EC%A7%80%20%EC%95%8A%EB%8A%94%EB%8B%A4%20%ED%95%9C%EA%B0%95&target=total,
+T08,9788954699914,하얼빈,김훈,문학동네,2022-08-03,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%ED%95%98%EC%96%BC%EB%B9%88%20%EA%B9%80%ED%9B%88&target=total,
+T09,9791168340510,파친코 1,이민진,인플루엔셜,2022-08-05,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%ED%8C%8C%EC%B9%9C%EC%BD%94%201%20%EC%9D%B4%EB%AF%BC%EC%A7%84&target=total,"현재판; 문학사상 구판(2018, 9788970129815)·박스 세트 제외"
+T10,9788972756194,나미야 잡화점의 기적,히가시노 게이고,현대문학,2012-12-19,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%EB%82%98%EB%AF%B8%EC%95%BC%20%EC%9E%A1%ED%99%94%EC%A0%90%EC%9D%98%20%EA%B8%B0%EC%A0%81%20%ED%9E%88%EA%B0%80%EC%8B%9C%EB%85%B8%20%EA%B2%8C%EC%9D%B4%EA%B3%A0&target=total,무선 보급판(2022) 제외
+T11,9791168340770,미움받을 용기,기시미 이치로 & 고가 후미타케,인플루엔셜,2022-12-28,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%EB%AF%B8%EC%9B%80%EB%B0%9B%EC%9D%84%20%EC%9A%A9%EA%B8%B0%20%EA%B8%B0%EC%8B%9C%EB%AF%B8%20%EC%9D%B4%EC%B9%98%EB%A1%9C&target=total,"[확인 필요] 교보에 200만 부 기념 스페셜 에디션만 나옴; 2014년 구판(9788996991342, 카카오 결과)과 다름"
+T12,9788934972464,사피엔스,유발 하라리,김영사,2023-04-01,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%EC%82%AC%ED%94%BC%EC%97%94%EC%8A%A4%20%EC%9C%A0%EB%B0%9C%20%ED%95%98%EB%9D%BC%EB%A6%AC&target=total,양장 특별판 제외
+T13,9788937834790,정의란 무엇인가,마이클 샌델,와이즈베리,2014-11-20,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%EC%A0%95%EC%9D%98%EB%9E%80%20%EB%AC%B4%EC%97%87%EC%9D%B8%EA%B0%80%20%EB%A7%88%EC%9D%B4%ED%81%B4%20%EC%83%8C%EB%8D%B8&target=total,
+T14,9788934942467,총 균 쇠,재레드 다이아몬드,김영사,2023-05-11,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%EC%B4%9D%20%EA%B7%A0%20%EC%87%A0%20%EC%9E%AC%EB%A0%88%EB%93%9C%20%EB%8B%A4%EC%9D%B4%EC%95%84%EB%AA%AC%EB%93%9C&target=total,25주년 양장판·문학사상 구판(2005·2013) 제외
+T15,9791193401200,역사의 쓸모,최태성,프런트페이지,2024-07-29,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%EC%97%AD%EC%82%AC%EC%9D%98%20%EC%93%B8%EB%AA%A8%20%EC%B5%9C%ED%83%9C%EC%84%B1&target=total,특별 합본판 제외
+T16,9791190313186,지적 대화를 위한 넓고 얕은 지식 1,채사장,웨일북,2020-02-05,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%EC%A7%80%EC%A0%81%20%EB%8C%80%ED%99%94%EB%A5%BC%20%EC%9C%84%ED%95%9C%20%EB%84%93%EA%B3%A0%20%EC%96%95%EC%9D%80%20%EC%A7%80%EC%8B%9D%20%EC%B1%84%EC%82%AC%EC%9E%A5&target=total,표본 제목에 권 번호 없음 -> 1권으로 정함
+T17,9791164136452,공정하다는 착각,마이클 샌델,와이즈베리,2020-12-01,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%EA%B3%B5%EC%A0%95%ED%95%98%EB%8B%A4%EB%8A%94%20%EC%B0%A9%EA%B0%81%20%EB%A7%88%EC%9D%B4%ED%81%B4%20%EC%83%8C%EB%8D%B8&target=total,
+T18,9791188331796,돈의 속성,김승호,스노우폭스북스,2020-06-15,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%EB%8F%88%EC%9D%98%20%EC%86%8D%EC%84%B1%20%EA%B9%80%EC%8A%B9%ED%98%B8&target=total,교보에 400쇄 리커버에디션 표기로만 나옴
+T19,9791162540640,아주 작은 습관의 힘,제임스 클리어,비즈니스북스,2019-02-26,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%EC%95%84%EC%A3%BC%20%EC%9E%91%EC%9D%80%20%EC%8A%B5%EA%B4%80%EC%9D%98%20%ED%9E%98%20%EC%A0%9C%EC%9E%84%EC%8A%A4%20%ED%81%B4%EB%A6%AC%EC%96%B4&target=total,교보에 50만 부 기념 스페셜 에디션 표기로만 나옴
+T20,9788934933878,팩트풀니스,한스 로슬링,김영사,2024-09-01,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%ED%8C%A9%ED%8A%B8%ED%92%80%EB%8B%88%EC%8A%A4%20%ED%95%9C%EC%8A%A4%20%EB%A1%9C%EC%8A%AC%EB%A7%81&target=total,[확인 필요] 50만 부 뉴에디션(현재판); 2019년 초판과 ISBN 다를 수 있음
+T21,9788983711892,코스모스,칼 세이건,사이언스북스,2010-01-20,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%EC%BD%94%EC%8A%A4%EB%AA%A8%EC%8A%A4%20%EC%B9%BC%20%EC%84%B8%EC%9D%B4%EA%B1%B4&target=total,[확인 필요] 일반판 선택; 100만부 기념판(2026)·2022-12-15판(9788983711540) 있음
+T22,9788932476506,이기적 유전자,리처드 도킨스,을유문화사,2026-09-15,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%EC%9D%B4%EA%B8%B0%EC%A0%81%20%EC%9C%A0%EC%A0%84%EC%9E%90%20%EB%A6%AC%EC%B2%98%EB%93%9C%20%EB%8F%84%ED%82%A8%EC%8A%A4&target=total,[확인 필요] 최신판 선택; 2023판(9788932473901) 있음
+T23,9791189327156,물고기는 존재하지 않는다,룰루 밀러,곰출판,2021-12-17,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%EB%AC%BC%EA%B3%A0%EA%B8%B0%EB%8A%94%20%EC%A1%B4%EC%9E%AC%ED%95%98%EC%A7%80%20%EC%95%8A%EB%8A%94%EB%8B%A4%20%EB%A3%B0%EB%A3%A8%20%EB%B0%80%EB%9F%AC&target=total,교보에 리커버:K 표기로만 나옴; 큰글자도서 제외
+T24,9788962622508,떨림과 울림,김상욱,동아시아,2018-11-07,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%EB%96%A8%EB%A6%BC%EA%B3%BC%20%EC%9A%B8%EB%A6%BC%20%EA%B9%80%EC%83%81%EC%9A%B1&target=total,큰글자도서 제외
+T25,9791159920967,랩 걸,호프 자런,알마,2017-02-16,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%EB%9E%A9%20%EA%B1%B8%20%ED%98%B8%ED%94%84%20%EC%9E%90%EB%9F%B0&target=total,
+T26,9788966265527,클린 코드,로버트 C. 마틴,인사이트,2026-09-17,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%ED%81%B4%EB%A6%B0%20%EC%BD%94%EB%93%9C%20%EB%A1%9C%EB%B2%84%ED%8A%B8%20C.%20%EB%A7%88%ED%8B%B4&target=total,[확인 필요] 최신판 선택; 2013판 Clean Code(클린 코드)(9788966260959) 있음
+T27,9791162245651,혼자 공부하는 파이썬,윤인성,한빛미디어,2022-06-01,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%ED%98%BC%EC%9E%90%20%EA%B3%B5%EB%B6%80%ED%95%98%EB%8A%94%20%ED%8C%8C%EC%9D%B4%EC%8D%AC%20%EC%9C%A4%EC%9D%B8%EC%84%B1&target=total,
+T28,9791163034735,Do it! 점프 투 파이썬,박응용,이지스퍼블리싱,2023-06-15,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=Do%20it%21%20%EC%A0%90%ED%94%84%20%ED%88%AC%20%ED%8C%8C%EC%9D%B4%EC%8D%AC%20%EB%B0%95%EC%9D%91%EC%9A%A9&target=total,
+T29,9791169212298,이것이 자바다,신용권,한빛미디어,2024-04-01,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%EC%9D%B4%EA%B2%83%EC%9D%B4%20%EC%9E%90%EB%B0%94%EB%8B%A4%20%EC%8B%A0%EC%9A%A9%EA%B6%8C&target=total,최신 개정판 선택; 2015·2022판 있음
+T30,9791158392239,모던 자바스크립트 Deep Dive,이웅모,위키북스,2020-09-25,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%EB%AA%A8%EB%8D%98%20%EC%9E%90%EB%B0%94%EC%8A%A4%ED%81%AC%EB%A6%BD%ED%8A%B8%20Deep%20Dive%20%EC%9D%B4%EC%9B%85%EB%AA%A8&target=total,
+T31,9788971968710,마당을 나온 암탉,황선미,사계절,2023-07-31,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%EB%A7%88%EB%8B%B9%EC%9D%84%20%EB%82%98%EC%98%A8%20%EC%95%94%ED%83%89%20%ED%99%A9%EC%84%A0%EB%AF%B8&target=total,애니메이션 그림책·20주년 기념판·특별판 제외
+T32,9788954677158,긴긴밤,루리,문학동네,2021-02-03,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%EA%B8%B4%EA%B8%B4%EB%B0%A4%20%EB%A3%A8%EB%A6%AC&target=total,큰 판형·30주년 특별판 제외
+T33,9791170283836,구름빵,백희나,한솔수북,2019-12-05,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%EA%B5%AC%EB%A6%84%EB%B9%B5%20%EB%B0%B1%ED%9D%AC%EB%82%98&target=total,[확인 필요] 현재판 선택; 2007년 구판(9788953527058)·빅북 있음
+T34,9791198610614,알사탕,백희나,스토리보울,2024-03-21,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%EC%95%8C%EC%82%AC%ED%83%95%20%EB%B0%B1%ED%9D%AC%EB%82%98&target=total,[확인 필요] 출판사 변경 후 판 선택(구판 출판사 다름); 빅북 제외
+T35,9788936456085,완득이,김려령,창비,2014-03-17,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%EC%99%84%EB%93%9D%EC%9D%B4%20%EA%B9%80%EB%A0%A4%EB%A0%B9&target=total,[확인 필요] 2008년 초판(9788936433635) 있음; 큰글자도서 제외
+T36,9788936456221,우아한 거짓말,김려령,창비,2022-12-29,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%EC%9A%B0%EC%95%84%ED%95%9C%20%EA%B1%B0%EC%A7%93%EB%A7%90%20%EA%B9%80%EB%A0%A4%EB%A0%B9&target=total,[확인 필요] 2014판(9788936434090) 있음; 큰글자도서 제외
+T37,9788954427173,시간을 파는 상점,김선영,자음과모음,2012-04-10,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%EC%8B%9C%EA%B0%84%EC%9D%84%20%ED%8C%8C%EB%8A%94%20%EC%83%81%EC%A0%90%20%EA%B9%80%EC%84%A0%EC%98%81&target=total,
+T38,9788936442804,푸른 사자 와니니,이현,창비,2019-01-29,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%ED%91%B8%EB%A5%B8%20%EC%82%AC%EC%9E%90%20%EC%99%80%EB%8B%88%EB%8B%88%20%EC%9D%B4%ED%98%84&target=total,시리즈 1권
+T39,9788986621136,강아지똥,권정생,길벗어린이,2014-04-18,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%EA%B0%95%EC%95%84%EC%A7%80%EB%98%A5%20%EA%B6%8C%EC%A0%95%EC%83%9D&target=total,동화판(2024) 제외
+T40,9791193790403,해리 포터와 마법사의 돌 1,J.K. 롤링,문학수첩,2024-11-20,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%ED%95%B4%EB%A6%AC%20%ED%8F%AC%ED%84%B0%EC%99%80%20%EB%A7%88%EB%B2%95%EC%82%AC%EC%9D%98%20%EB%8F%8C%201%20J.K.%20%EB%A1%A4%EB%A7%81&target=total,[확인 필요] 최신판 선택; 기숙사 에디션(2022) 등 판 다수
+T41,9791130699462,토지 1,박경리,다산책방,2023-06-07,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%ED%86%A0%EC%A7%80%201%20%EB%B0%95%EA%B2%BD%EB%A6%AC&target=total,교보 표기: 토지 1(1부 1권)
+T42,9788965749219,태백산맥 1,조정래,해냄출판사,2020-10-15,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%ED%83%9C%EB%B0%B1%EC%82%B0%EB%A7%A5%201%20%EC%A1%B0%EC%A0%95%EB%9E%98&target=total,교보 표기: 태백산맥 1: 제1부 한의 모닥불; 청소년판 제외
+T43,9788937460449,데미안,헤르만 헤세,민음사,2009-01-20,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%EB%8D%B0%EB%AF%B8%EC%95%88%20%ED%97%A4%EB%A5%B4%EB%A7%8C%20%ED%97%A4%EC%84%B8&target=total,번역판 다수; 민음사판
+T44,9788931021295,어린 왕자,앙투안 드 생텍쥐페리,문예출판사,2020-09-22,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%EC%96%B4%EB%A6%B0%20%EC%99%95%EC%9E%90%20%EC%95%99%ED%88%AC%EC%95%88%20%EB%93%9C%20%EC%83%9D%ED%85%8D%EC%A5%90%ED%8E%98%EB%A6%AC&target=total,"[확인 필요] 판이 매우 많고 일반판이 분명하지 않음; 문예출판사 소프트커버 에디션 선택, 초판본 복각판 제외"
+T45,9788937460777,1984,조지 오웰,민음사,2007-03-30,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=1984%20%EC%A1%B0%EC%A7%80%20%EC%98%A4%EC%9B%B0&target=total,번역판 다수; 민음사판
+T46,9788954623360,칼의 노래,김훈,문학동네,2014-01-15,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%EC%B9%BC%EC%9D%98%20%EB%85%B8%EB%9E%98%20%EA%B9%80%ED%9B%88&target=total,2012판(9788954617246) 있음
+T47,9788936434595,채식주의자,한강,창비,2022-03-28,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%EC%B1%84%EC%8B%9D%EC%A3%BC%EC%9D%98%EC%9E%90%20%ED%95%9C%EA%B0%95&target=total,검색어 변형 사례; 정답은 T01과 같은 책
+T48,9788934942467,총 균 쇠,재레드 다이아몬드,김영사,2023-05-11,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%EC%B4%9D%20%EA%B7%A0%20%EC%87%A0%20%EC%9E%AC%EB%A0%88%EB%93%9C%20%EB%8B%A4%EC%9D%B4%EC%95%84%EB%AA%AC%EB%93%9C&target=total,검색어 변형 사례; 정답은 T14와 같은 책
+T49,9791168340770,미움받을 용기,기시미 이치로 & 고가 후미타케,인플루엔셜,2022-12-28,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%EB%AF%B8%EC%9B%80%EB%B0%9B%EC%9D%84%20%EC%9A%A9%EA%B8%B0%20%EA%B8%B0%EC%8B%9C%EB%AF%B8%20%EC%9D%B4%EC%B9%98%EB%A1%9C&target=total,검색어 변형 사례; 정답은 T11과 같은 책 [확인 필요는 T11 참고]
+T50,9788972976196,나의 라임 오렌지나무,J.M. 바스콘셀로스,동녘,2010-04-15,Claude(초안·교보문고),,https://search.kyobobook.co.kr/search?keyword=%EB%82%98%EC%9D%98%20%EB%9D%BC%EC%9E%84%20%EC%98%A4%EB%A0%8C%EC%A7%80%EB%82%98%EB%AC%B4%20J.M.%20%EB%B0%94%EC%8A%A4%EC%BD%98%EC%85%80%EB%A1%9C%EC%8A%A4&target=total,40주년 스페셜·동녘주니어·그래픽 노블 제외

@@ -211,3 +211,15 @@ def test_score_end_to_end(tmp_path, monkeypatch, capsys):
     score.main([str(raw), "--gold", str(gold), "--summary", str(summary_csv)])
     assert len(list(csv.DictReader(open(summary_csv, encoding="utf-8-sig")))) == 1
     assert (tmp_path / "out" / "A_dev_20261123-000000.per_query.csv").exists()   # 요약 파일 옆
+
+
+def test_gold_table_matches_samples_and_has_valid_isbns():
+    """eval/gold.csv: 표본 70권과 id가 같고, 채워진 ISBN은 모두 검사 숫자가 맞아야 한다."""
+    def read(name):
+        with open(os.path.join(helpers.REPO_DIR, "eval", name), encoding="utf-8-sig", newline="") as f:
+            return list(csv.DictReader(f))
+    samples = read("samples_dev.csv") + read("samples_test.csv")
+    gold = read("gold.csv")
+    assert [g["id"] for g in gold] == [s["id"] for s in samples]
+    bad = [g["id"] for g in gold if g["isbn13"] and evallib.isbn13(g["isbn13"]) != g["isbn13"]]
+    assert bad == []
